@@ -114,6 +114,8 @@ def mat_lse(coef, rs):
     ypred : column matrix
         The identified outputs
     '''
+    __is_column_vector(rs)
+    __is_legal_param(coef, rs)
     pinv = inv(dot(coef.T, coef))
     theta = dot(dot(pinv, coef.T), rs)
     ypred = dot(coef, theta)

@@ -106,3 +106,4 @@ venv.bak/
 
 # Others
 examples/*
+results/*

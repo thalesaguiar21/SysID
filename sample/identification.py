@@ -1,7 +1,6 @@
 from __future__ import print_function
 from __future__ import division
 from numpy import zeros, array, dot, vstack
-from numpy.linalg import inv, LinAlgError
 from numpy.random import normal
 from metrics import stdev
 from estimation import recursive_lse, mat_lse
