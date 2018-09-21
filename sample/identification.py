@@ -242,35 +242,3 @@ def identify_armax(u, y, order, delay):
         stdev_res = stdev(res)
         N = N + 1
     return theta, res, ypred
-
-
-def __get_elm(colvec, index):
-    if colvec is None:
-        raise ValueError('Colvec is None!')
-    elif len(colvec.shape) == 2 and colvec.shape[1] != 1:
-        raise ValueError('Colvec must be a column matrix!' + str(colvec.shape))
-    else:
-        if index < 0 or index >= colvec.shape[0]:
-            return 0.0
-        return colvec[index, 0]
-
-
-def simul_arx(u, theta, delay, sdev):
-    # pdb.set_trace()
-    order = int(theta.shape[0] / 2)
-    npoints = u.shape[0]
-    # Noise generation
-    e = sdev * normal(0, sdev, (npoints, 1))
-    y = zeros((npoints, 1))
-
-    for i in xrange(npoints):
-        y[i, 0] = e[i, 0]
-        for j in xrange(order):
-            y[i, 0] = y[i, 0] + theta[j, 0] * __get_elm(y, i - j)
-            index = i - delay - j
-            y[i, 0] = y[i, 0] + theta[j + order, 0] * __get_elm(u, index)
-    return y
-
-
-def simul_armax():
-    pass
