@@ -105,5 +105,7 @@ venv.bak/
 
 
 # Others
-examples/
-results/
+examples/*
+!examples/data_test.dat
+results/*
+
