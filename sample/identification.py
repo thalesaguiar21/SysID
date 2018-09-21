@@ -4,7 +4,7 @@ from numpy import zeros, array, dot, vstack
 from numpy.linalg import inv, LinAlgError
 from numpy.random import normal
 from metrics import stdev
-from estimation import recursive_lse
+from estimation import recursive_lse, mat_lse
 import pdb
 
 ''' This module has some estimation functions developed during the class
@@ -99,11 +99,7 @@ def identify_arx(u, y, order, delay):
         The predicted output
     '''
     A, B = identify_arx_params(u, y, order, delay)
-    pinv_a = inv(dot(A.T, A))
-    theta = dot(dot(pinv_a, A.T), B)
-    ypred = dot(A, theta)
-    res = B - ypred
-    return theta, res, ypred
+    return mat_lse(A, B)
 
 
 def identify_arx_rec(u, y, order, delay, conf=1000, ffactor=1.0):
@@ -167,11 +163,7 @@ def __identify_armax_int_params(u, y, order, delay, e):
 
 def __identify_armax_int(u, y, order, delay, e):
     A, B = __identify_armax_int_params(u, y, order, delay, e)
-    pinv_a = inv(dot(A.T, A))
-    theta = dot(dot(pinv_a, A.T), B)
-    ypred = dot(A, theta)
-    res = B - ypred
-    return theta, res, ypred
+    return mat_lse(A, B)
 
 
 def __identify_armax_int_rec(u, y, order, delay, e, conf, ffactor):

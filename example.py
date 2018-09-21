@@ -3,7 +3,7 @@ import sample.identification as sid
 import sample.metrics as met
 from numpy import append, matrix, dot
 import matplotlib.pyplot as plt
-import pdb
+# import pdb
 
 tsets = {'bbeam': 'training/ballbeam_train.dat',
          'dryer': 'training/dryer_train.dat',

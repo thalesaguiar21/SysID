@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import division
-from numpy import eye, dot, array, zeros, ndarray, matrix
-import pdb
+from numpy import eye, dot, zeros, ndarray, matrix
+from numpy.linalg import inv
 
 ''' This module has some estimation functions developed during the class
 of introduction to the Identification of Systems
@@ -90,3 +90,32 @@ def recursive_lse(coef, rs, conf=1000, ffac=1.0, noise=None):
         P = (1.0 / ffac) * (P - dot(K, dot(psi_k.T, P)))
 
     return theta, params_variation
+
+
+def mat_lse(coef, rs):
+    '''
+    Compute the LSE with matricial operations, that is,
+    AX = B, then
+    X = (A'A)A'B
+
+    Parameters
+    ----------
+    coef : matrix
+        The coefficients matrix
+    rs : column matrix
+        The result matrix
+
+    Returns
+    -------
+    theta : column matrix
+        The values that solve the system
+    res : column matrix
+        The residues of identified outputs
+    ypred : column matrix
+        The identified outputs
+    '''
+    pinv = inv(dot(coef.T, coef))
+    theta = dot(dot(pinv, coef.T), rs)
+    ypred = dot(coef, theta)
+    res = rs - ypred
+    return theta, res, ypred
