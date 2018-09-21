@@ -7,11 +7,17 @@ import matplotlib.pyplot as plt
 
 tsets = {'bbeam': 'training/ballbeam_train.dat',
          'dryer': 'training/dryer_train.dat',
-         'tank1': 'training/tank1_train.dat'}
+         'tank1': 'training/tank1_train.dat',
+         'ipca1': 'ipca1.dat',
+         'ipca2': 'ipca2.dat',
+         'ipca3': 'ipca3.dat'}
 
 valsets = {'bbeam': 'validation/ballbeam_val.dat',
            'dryer': 'validation/dryer_val.dat',
-           'tank1': 'validation/tank1_val.dat'}
+           'tank1': 'validation/tank1_val.dat',
+           'ipca1': 'ipca1.dat',
+           'ipca2': 'ipca2.dat',
+           'ipca3': 'ipca3.dat'}
 
 
 def train(fname, order, delay, inp=0, out=1, est='arx'):
@@ -106,9 +112,9 @@ def plot_hist(fname, order, delay, est='arx', inp=0, out=1, smp=None):
     plt.show()
 
 
-theta = matrix([1.0000000000000009, -5.4778230562657626e-15]).T
+# theta = matrix([1.0000000000000009, -5.4778230562657626e-15]).T
 
 # train('tank1', 3, 8, inp=0, out=2)
 # train('tank1', 3, 3, inp=0, out=2, est='armax')
-validate('tank1', 1, 3, theta, inp=0, out=2, scatrate=2)
+# validate('tank1', 1, 3, theta, inp=0, out=2, scatrate=2)
 # plot_hist('tank1', 1, 3, inp=0, out=2, smp=100)

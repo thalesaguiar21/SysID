@@ -74,6 +74,29 @@ def identify_arx_params(u, y, order, delay):
     return A, B
 
 
+def identify_arx_miso(u, y, order, delay):
+    # __validate_id(u, y, order, delay)
+    __valid_order(order)
+    __valid_delay(delay)
+    u = array(u)
+    y = array(y)
+    min_points = 3 * order * delay
+    n_inps = u.shape[1]
+    if y.size < min_points:
+        raise ValueError(
+            'The length of u and y must be at least 3 * order * delay')
+    n_equations = y.size - order - delay
+    B = zeros((n_equations, 1))
+    A = zeros((n_equations, 2 * (order + n_inps - 1)))
+    for i in xrange(n_equations):
+        for j in xrange(order):
+            A[i, j] = y[i + order + delay - j, 0]
+            for k in xrange(n_inps):
+                A[i, j + order * (k + 1)] = u[i + order - j, k]
+        B[i, 0] = y[i + order + delay, 0]
+    return A, B
+
+
 def identify_arx(u, y, order, delay):
     ''' Identify the structural parameters of the ARX system
 
