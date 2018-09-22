@@ -1,7 +1,6 @@
 import unittest2 as unittest
 import numpy as np
 from context import dut
-import pdb
 
 
 class TestDataUtils(unittest.TestCase):
@@ -110,3 +109,10 @@ class TestDataUtils(unittest.TestCase):
             self.fail()
         except IndexError:
             pass
+
+    def test_shapes(self):
+        self.setUp()
+        self.inp = [0, 1]
+        inp, out = dut.r_dots(self.fname, self.inp, self.out)
+        self.assertEqual(inp.shape, (3, 2))
+        self.assertEqual(out.shape, (3, 1))
