@@ -12,7 +12,7 @@ of introduction to the Identification of Systems
 
 
 def __valid_io(u, y):
-    if u.size != y.size:
+    if u.shape[0] != y.size:
         raise ValueError('Number of input/outputs must be equal!')
 
 
@@ -151,14 +151,16 @@ def __identify_armax_int_params(u, y, order, delay, e):
         raise ValueError(
             'The minimum size of u, e and y must be 4 * order + delay')
 
+    n_inps = u.shape[1]
     n_equation = n_points - order - delay
     B = zeros((n_equation, 1))
-    A = zeros((n_equation, 3 * order))
+    A = zeros((n_equation, order * (n_inps + 2)))
     for i in xrange(n_equation):
         for j in xrange(order):
             A[i, j] = y[i + order + delay - j, 0]
-            A[i, j + order] = u[i + order - j, 0]
-            A[i, j + 2 * order] = e[i + order + delay - j, 0]
+            for k in xrange(n_inps):
+                A[i, j + order * (k + 1)] = u[i + order - j, k]
+            A[i, j + n_inps * order] = e[i + order + delay - j, 0]
         B[i, 0] = y[i + order + delay, 0]
     return A, B
 
