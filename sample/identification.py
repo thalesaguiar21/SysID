@@ -81,13 +81,12 @@ def identify_arx_params_miso(u, y, order, delay):
     y = array(y)
     min_points = 3 * order * delay
     n_inps = u.shape[1]
-    pdb.set_trace()
     if y.size < min_points:
         raise ValueError(
             'The length of u and y must be at least 3 * order * delay')
     n_equations = y.size - order - delay
     B = zeros((n_equations, 1))
-    A = zeros((n_equations, 2 * (order + n_inps - 1)))
+    A = zeros((n_equations, order * (n_inps + 1)))
     for i in xrange(n_equations):
         for j in xrange(order):
             A[i, j] = y[i + order + delay - j, 0]
