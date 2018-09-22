@@ -135,8 +135,8 @@ def plot_hist(fname, order, delay, est='arx', inp=0, out=1, smp=None):
 
 
 # theta = matrix([1.0000000000000009, -5.4778230562657626e-15]).T
-train_rec('ipca2', 3, 3, inp=[0, 1], out=2)
+# train_rec('ipca3', 3, 3, inp=[0, 1, 2], out=3)
 # train('tank1', 3, 8, inp=0, out=2)
 # train('tank1', 3, 3, inp=0, out=2, est='armax')
 # validate('tank1', 1, 3, theta, inp=0, out=2, scatrate=2)
-# plot_hist('tank1', 1, 3, inp=0, out=2, smp=100)
+plot_hist('ipca1', 1, 3, inp=0, out=1)

@@ -56,25 +56,6 @@ def __add_noise(output, sdev, noise='gauss'):
 
 
 def identify_arx_params(u, y, order, delay):
-    __validate_id(u, y, order, delay)
-    u = array(u)
-    y = array(y)
-    min_points = 3 * order * delay
-    if y.size < min_points:
-        raise ValueError(
-            'The length of u and y must be at least 3 * order * delay')
-    n_equations = y.size - order - delay
-    B = zeros((n_equations, 1))
-    A = zeros((n_equations, 2 * order))
-    for i in xrange(n_equations):
-        for j in xrange(order):
-            A[i, j] = y[i + order + delay - j, 0]
-            A[i, j + order] = u[i + order - j, 0]
-        B[i, 0] = y[i + order + delay, 0]
-    return A, B
-
-
-def identify_arx_params_miso(u, y, order, delay):
     __valid_order(order)
     __valid_delay(delay)
     u = array(u)
@@ -119,7 +100,7 @@ def identify_arx(u, y, order, delay):
     ypred : numpy column matrix
         The predicted output
     '''
-    A, B = identify_arx_params_miso(u, y, order, delay)
+    A, B = identify_arx_params(u, y, order, delay)
     return mat_lse(A, B)
 
 
@@ -152,7 +133,7 @@ def identify_arx_rec(u, y, order, delay, conf=1000, ffactor=1.0):
     phist : matrix
         The parameters variation along the samples
     '''
-    A, B = identify_arx_params_miso(u, y, order, delay)
+    A, B = identify_arx_params(u, y, order, delay)
     theta, phist = recursive_lse(A, B, conf, ffactor)
     ypred = dot(A, theta)
     res = B - ypred
