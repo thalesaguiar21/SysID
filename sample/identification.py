@@ -74,8 +74,7 @@ def identify_arx_params(u, y, order, delay):
     return A, B
 
 
-def identify_arx_miso(u, y, order, delay):
-    # __validate_id(u, y, order, delay)
+def identify_arx_params_miso(u, y, order, delay):
     __valid_order(order)
     __valid_delay(delay)
     u = array(u)
