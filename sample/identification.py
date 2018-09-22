@@ -81,6 +81,7 @@ def identify_arx_params_miso(u, y, order, delay):
     y = array(y)
     min_points = 3 * order * delay
     n_inps = u.shape[1]
+    pdb.set_trace()
     if y.size < min_points:
         raise ValueError(
             'The length of u and y must be at least 3 * order * delay')
@@ -119,7 +120,7 @@ def identify_arx(u, y, order, delay):
     ypred : numpy column matrix
         The predicted output
     '''
-    A, B = identify_arx_params(u, y, order, delay)
+    A, B = identify_arx_params_miso(u, y, order, delay)
     return mat_lse(A, B)
 
 
@@ -152,7 +153,7 @@ def identify_arx_rec(u, y, order, delay, conf=1000, ffactor=1.0):
     phist : matrix
         The parameters variation along the samples
     '''
-    A, B = identify_arx_params(u, y, order, delay)
+    A, B = identify_arx_params_miso(u, y, order, delay)
     theta, phist = recursive_lse(A, B, conf, ffactor)
     ypred = dot(A, theta)
     res = B - ypred

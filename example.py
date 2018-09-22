@@ -20,6 +20,28 @@ valsets = {'bbeam': 'validation/ballbeam_val.dat',
            'ipca3': 'ipca3.dat'}
 
 
+def train_rec(fname, order, delay, inp=0, out=1, est='arx'):
+    f_templ = '{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{}\n'
+    rs_file = 'results/' + fname + '_train_' + est
+    with open(rs_file + '.rs', 'w') as file:
+        header = ['stdev', 'aic', 'fpe', 'order', 'delay', 'params']
+        file.write(f_templ.format(*header))
+        for order in xrange(1, order + 1):
+            for delay in xrange(0, delay + 1):
+                theta = []
+                res = []
+                u, y = dut.r_dots(tsets[fname], inp, out, '\t')
+                if est == 'arx':
+                    theta, res, _, _ = sid.identify_arx_rec(u, y, order, delay)
+                else:
+                    theta, res, _, _ = sid.identify_armax_rec(u, y, order, delay)
+                stdev = format(met.stdev(res), '.3e')
+                aic = format(met.aic(res, theta.size), '.3e')
+                fpe = format(met.fpe(res, theta.size), '.3e')
+                t = [theta[i, 0] for i in range(theta.shape[0])]
+                file.write(f_templ.format(stdev, aic, fpe, order, delay, t))
+
+
 def train(fname, order, delay, inp=0, out=1, est='arx'):
     f_templ = '{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{}\n'
     rs_file = 'results/' + fname + '_train_' + est
@@ -44,7 +66,7 @@ def train(fname, order, delay, inp=0, out=1, est='arx'):
 
 def validate(fname, order, delay, theta, scatrate=3, inp=0, out=1, est='arx'):
     u, y = dut.r_dots(valsets[fname], inp, out, '\t')
-    reg, B = sid.identify_arx_params(u, y, order, delay)
+    reg, B = sid.identify_arx_params_miso(u, y, order, delay)
     ypred = dot(reg, theta)
     print '{:.3e}'.format(met.stdev(B - ypred))
     print '{:.3e}'.format(met.aic(B - ypred, 2 * order))
