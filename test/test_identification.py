@@ -19,7 +19,7 @@ class TestIdentification(unittest.TestCase):
         self.out = 1
         u, y = dut.r_dots(self.fname, self.inp, self.out, sep='\t')
         A, _ = sid.identify_arx_params(u, y, self.order, self.delay)
-        self.assertEqual(A.shape, (294, 2))
+        self.assertEqual(A.shape, (288, 2))
 
     def test_shape_double(self):
         self.setUp()
@@ -28,7 +28,7 @@ class TestIdentification(unittest.TestCase):
         self.out = 2
         u, y = dut.r_dots(self.fname, self.inp, self.out, sep='\t')
         A, _ = sid.identify_arx_params(u, y, self.order, self.delay)
-        self.assertEqual(A.shape, (293, 3))
+        self.assertEqual(A.shape, (287, 3))
 
     def test_shape_double_three(self):
         self.setUp()
@@ -38,7 +38,7 @@ class TestIdentification(unittest.TestCase):
         self.order = 2
         u, y = dut.r_dots(self.fname, self.inp, self.out, sep='\t')
         A, _ = sid.identify_arx_params(u, y, self.order, self.delay)
-        self.assertEqual(A.shape, (292, 6))
+        self.assertEqual(A.shape, (286, 6))
 
     def test_armax_shape(self):
         self.setUp()
