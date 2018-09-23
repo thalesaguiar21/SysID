@@ -3,7 +3,7 @@ import sample.identification as sid
 import sample.metrics as met
 from numpy import append, matrix, dot
 import matplotlib.pyplot as plt
-# import pdb
+import pdb
 
 tsets = {'bbeam': 'training/ballbeam_train.dat',
          'dryer': 'training/dryer_train.dat',
@@ -66,7 +66,7 @@ def train(fname, order, delay, inp=0, out=1, est='arx'):
 
 def validate(fname, order, delay, theta, scatrate=3, inp=0, out=1, est='arx'):
     u, y = dut.r_dots(valsets[fname], inp, out, '\t')
-    reg, B = sid.identify_arx_params_miso(u, y, order, delay)
+    reg, B = sid.identify_arx_params(u, y, order, delay)
     ypred = dot(reg, theta)
     print '{:.3e}'.format(met.stdev(B - ypred))
     print '{:.3e}'.format(met.aic(B - ypred, 2 * order))
@@ -79,7 +79,7 @@ def __plot_test(real, estim, scatrate):
     plt.xlabel('Amostras')
     real = real[estpts:]
     scatreal = [real[i * scatrate] for i in range((estim.size) / scatrate)]
-    plt.plot(range(0, estim.size - 1, scatrate), scatreal, 'rx', markersize=4)
+    plt.plot(range(0, estim.size - 1, scatrate), scatreal, 'r:', linewidth=1)
     plt.plot(estim, 'k--', linewidth=1)
 
     plt.subplots_adjust(0.08, 0.2, 0.98, 0.95, None, 0.3)
@@ -114,9 +114,9 @@ def plot_hist(fname, order, delay, est='arx', inp=0, out=1, smp=None):
     plt.title('ARX')
     plt.ylabel('Valor do parametro')
 
-    for i in xrange(2 * order):
+    for i in xrange(len(tarx)):
         lab = 'p' + str(i + 1)
-        plt.plot(tarx[i][:smp], linewidth=1.5, color=colors[i], label=lab)
+        plt.plot(tarx[i][:smp], linewidth=1.5, label=lab)
         plt.legend()
 
     # Configura o subplot para armax
@@ -125,18 +125,19 @@ def plot_hist(fname, order, delay, est='arx', inp=0, out=1, smp=None):
     plt.ylabel('Valor do parametro')
     plt.xlabel('Tempo')
 
-    for i in xrange(3 * order):
+    for i in xrange(len(tarmax)):
         lab = 'p' + str(i + 1)
-        plt.plot(tarmax[i][:smp], linewidth=1.5, color=colors[i], label=lab)
+        plt.plot(tarmax[i][:smp], linewidth=1.5, label=lab)
         plt.legend()
 
     plt.subplots_adjust(0.08, 0.125, 0.98, 0.95, None, 0.3)
     plt.show()
 
 
-# theta = matrix([1.0000000000000009, -5.4778230562657626e-15]).T
-# train_rec('ipca3', 3, 3, inp=[0, 1, 2], out=3)
+theta = matrix([0.9999992445586894, -3.4349580862332306e-08,
+                6.208282204955337e-07, 4.092937663233838e-08]).T
+# train_rec('ipca3', 5, 0, inp=[0, 1, 2], out=3, est='armax')
 # train('tank1', 3, 8, inp=0, out=2)
 # train('tank1', 3, 3, inp=0, out=2, est='armax')
-# validate('tank1', 1, 3, theta, inp=0, out=2, scatrate=2)
-plot_hist('ipca1', 1, 3, inp=0, out=1)
+validate('ipca3', 1, 0, theta, inp=[0, 1, 2], out=3, scatrate=2)
+# plot_hist('ipca3', 4, 0, inp=[0, 1, 2], out=3)

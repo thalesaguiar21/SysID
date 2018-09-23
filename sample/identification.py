@@ -199,7 +199,7 @@ def identify_armax_rec(u, y, order, delay, conf=1000, ffac=1.0):
     res : numpy column matrix
         The residues of the identified parameters theta
     '''
-    theta, res, ypred = identify_arx(u, y, order, delay)
+    theta, res, ypred, _ = identify_arx_rec(u, y, order, delay, conf, ffac)
     stdev_res = stdev(res)
     stdev_res_ant = 2.0 * stdev_res
     N = 0
