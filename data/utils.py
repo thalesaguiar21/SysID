@@ -6,52 +6,29 @@ import pdb
 
 def __is_positive_seq(seq):
     for e in seq:
-        if e < 0:
+        if e is None or e < 0:
             return False
     return True
 
 
-def __validate_xcol(xcol):
-    if xcol is None:
+def __validate_xcol(cols):
+    if cols is None:
         raise ValueError('Input must be a scalar or array!')
-    elif xcol == []:
-        raise ValueError('Input must have at least one element!')
-    elif isinstance(xcol, list) and not __is_positive_seq(xcol):
+    elif cols == [] or len(cols) < 2:
+        raise ValueError('There must have at least two elements!')
+    elif isinstance(cols, list) and not __is_positive_seq(cols):
         raise ValueError('Input must have positive indexes only SEQ!')
-    elif not isinstance(xcol, list) and xcol < 0:
-        raise ValueError('Input must have positive indexes only!')
 
 
-def __validate_ycol(ycol):
-    if ycol is None:
-        raise ValueError('Output must be a scalar.')
-    if ycol < 0:
-        raise ValueError('Output must be positive.')
-
-
-def __get_index(inp, out):
-    idx = []
-    ninps = 1
-    if isinstance(inp, list):
-        idx = inp[:]
-        ninps = len(inp)
-    else:
-        idx.append(inp)
-    idx.append(out)
-    return idx, ninps
-
-
-def r_dots(fname, xcol=0, ycol=-1, sep=' '):
+def r_dots(fname, columns=[0, 1], sep=' '):
     ''' Read a file separated by spaces into two matrices.
 
     Paramaters
     ----------
     fname : str
         The name of a file inside 'examples' folder
-    xcol : int, defaults to 0
-        The column of x
-    ycol : int, defaults to -1
-        The column of y
+    columns : list of int
+        Columns indexes, output is the last element input are the others
     sep : str, defaults to ' '
         The file seperator character
 
@@ -62,9 +39,8 @@ def r_dots(fname, xcol=0, ycol=-1, sep=' '):
     y : np matrix (n, 1)
         The last column of the file
     '''
-    __validate_xcol(xcol)
-    __validate_ycol(ycol)
-    indexes, ninps = __get_index(xcol, ycol)
+    __validate_xcol(columns)
+    ninps = len(columns) - 1
     data = open('examples/' + fname, 'r')
     data = data.readlines()
     dots = []
@@ -74,7 +50,7 @@ def r_dots(fname, xcol=0, ycol=-1, sep=' '):
         for elm in data[i]:
             if elm not in ['', '\n', '\t']:
                 row.append(float(elm))
-        dots.append([row[x] for x in indexes])
+        dots.append([row[x] for x in columns])
     dots = matrix(dots)
     return dots[:, :ninps], dots[:, -1]
 

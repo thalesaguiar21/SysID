@@ -1,13 +1,13 @@
 import unittest2 as unittest
 import numpy as np
 from context import dut
+import pdb
 
 
 class TestDataUtils(unittest.TestCase):
 
     def setUp(self):
         self.fname = 'data_test.dat'
-        self.inp = 0
         self.out = 1
 
     def __format_inout(self, inp, out):
@@ -17,10 +17,10 @@ class TestDataUtils(unittest.TestCase):
 
     def test_scalar_inp(self):
         self.setUp()
-        self.inp = 0
+        self.inp = [0, 1]
         einp = [141.31, 198.22, 282.96]
         eout = [198.22, 282.96, 403.73]
-        inp, out = dut.r_dots(self.fname, self.inp, self.out)
+        inp, out = dut.r_dots(self.fname, self.inp)
         inp, out = self.__format_inout(inp, out)
         self.assertSequenceEqual(einp, inp.tolist())
         self.assertSequenceEqual(eout, out.tolist())
@@ -28,7 +28,7 @@ class TestDataUtils(unittest.TestCase):
     def test_empty_inp(self):
         self.setUp()
         try:
-            dut.r_dots(self.fname, [], 1)
+            dut.r_dots(self.fname, [])
             self.fail()
         except ValueError:
             pass
@@ -36,15 +36,7 @@ class TestDataUtils(unittest.TestCase):
     def test_none_inp(self):
         self.setUp()
         try:
-            dut.r_dots(self.fname, None, 1)
-            self.fail()
-        except ValueError:
-            pass
-
-    def test_scalar_neg_inp(self):
-        self.setUp()
-        try:
-            dut.r_dots(self.fname, -290, self.out)
+            dut.r_dots(self.fname, None)
             self.fail()
         except ValueError:
             pass
@@ -52,7 +44,7 @@ class TestDataUtils(unittest.TestCase):
     def test_inp_offbound(self):
         self.setUp()
         try:
-            dut.r_dots(self.fname, [0, 1000, 4], self.out)
+            dut.r_dots(self.fname, [0, 1000, 4])
             self.fail()
         except IndexError:
             pass
@@ -60,19 +52,19 @@ class TestDataUtils(unittest.TestCase):
     def test_inp_negative(self):
         self.setUp()
         try:
-            dut.r_dots(self.fname, [0, -1, -400], self.out)
+            dut.r_dots(self.fname, [0, -1, -400])
             self.fail()
         except ValueError:
             pass
 
     def test_array_inp(self):
         self.setUp()
-        self.inp = [0, 2]
+        self.inp = [0, 2, 1]
         einp = [[141.31, 0.64945],
                 [198.22, 0.650154],
                 [282.96, 0.637122]]
         eout = [198.22, 282.96, 403.73]
-        inp, out = dut.r_dots(self.fname, self.inp, self.out)
+        inp, out = dut.r_dots(self.fname, self.inp)
         inp, out = self.__format_inout(inp, out)
         einp = np.append([], einp)
         self.assertSequenceEqual(einp.tolist(), inp.tolist())
@@ -80,39 +72,43 @@ class TestDataUtils(unittest.TestCase):
 
     def test_none_out(self):
         self.setUp()
+        self.inp = [0, 1, None]
         try:
-            dut.r_dots(self.fname, self.inp, None)
+            dut.r_dots(self.fname, self.inp)
             self.fail()
         except ValueError:
             pass
 
     def test_out_offbound(self):
         self.setUp()
+        self.inp = [0, 1, 4]
         try:
-            dut.r_dots(self.fname, self.inp, 4)
+            dut.r_dots(self.fname, self.inp)
             self.fail()
         except IndexError:
             pass
 
     def test_negative_out(self):
         self.setUp()
+        self.inp = [0, 1, -1]
         try:
-            dut.r_dots(self.fname, self.inp, -1)
+            dut.r_dots(self.fname, self.inp)
             self.fail()
         except ValueError:
             pass
 
     def test_out_farbound(self):
         self.setUp()
+        self.inp = [0, 1, 1000]
         try:
-            dut.r_dots(self.fname, self.inp, 1000)
+            dut.r_dots(self.fname, self.inp)
             self.fail()
         except IndexError:
             pass
 
     def test_shapes(self):
         self.setUp()
-        self.inp = [0, 1]
-        inp, out = dut.r_dots(self.fname, self.inp, self.out)
+        self.inp = [0, 1, 1]
+        inp, out = dut.r_dots(self.fname, self.inp)
         self.assertEqual(inp.shape, (3, 2))
         self.assertEqual(out.shape, (3, 1))

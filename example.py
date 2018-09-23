@@ -79,8 +79,8 @@ def __plot_test(real, estim, scatrate):
     plt.xlabel('Amostras')
     real = real[estpts:]
     scatreal = [real[i * scatrate] for i in range((estim.size) / scatrate)]
-    plt.plot(range(0, estim.size - 1, scatrate), scatreal, 'r:', linewidth=1)
-    plt.plot(estim, 'k--', linewidth=1)
+    plt.plot(range(0, estim.size - 1, scatrate), scatreal, 'r', linewidth=1)
+    plt.plot(estim, 'k:', linewidth=1)
 
     plt.subplots_adjust(0.08, 0.2, 0.98, 0.95, None, 0.3)
     plt.show()
@@ -136,8 +136,14 @@ def plot_hist(fname, order, delay, est='arx', inp=0, out=1, smp=None):
 
 theta = matrix([0.9999992445586894, -3.4349580862332306e-08,
                 6.208282204955337e-07, 4.092937663233838e-08]).T
-# train_rec('ipca3', 5, 0, inp=[0, 1, 2], out=3, est='armax')
+
+train_rec('ipca1', 5, 0, inp=0, out=1)
+train_rec('ipca2', 5, 0, inp=[0, 1], out=2)
+train_rec('ipca3', 5, 0, inp=[0, 1, 2], out=3)
+train_rec('ipca1', 5, 0, inp=0, out=1, est='armax')
+train_rec('ipca2', 5, 0, inp=[0, 1], out=2, est='armax')
+train_rec('ipca3', 5, 0, inp=[0, 1, 2], out=3, est='armax')
 # train('tank1', 3, 8, inp=0, out=2)
 # train('tank1', 3, 3, inp=0, out=2, est='armax')
-validate('ipca3', 1, 0, theta, inp=[0, 1, 2], out=3, scatrate=2)
+# validate('ipca3', 1, 0, theta, inp=[0, 1, 2], out=3, scatrate=2)
 # plot_hist('ipca3', 4, 0, inp=[0, 1, 2], out=3)
