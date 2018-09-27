@@ -108,4 +108,5 @@ venv.bak/
 examples/*
 !examples/data_test.dat
 results/*
+clean.cmd
 
