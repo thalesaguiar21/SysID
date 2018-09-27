@@ -9,6 +9,12 @@ of introduction to the Identification of Systems
 '''
 
 
+def __get_io(data):
+    ''' Given a matrix, separate the last columns as output and
+    the rest as inputs
+    '''
+    return data[:, :-1], data[:, -1:]
+
 def __valid_io(u, y):
     if u.shape[0] != y.size:
         raise ValueError('Number of input/outputs must be equal!')
@@ -53,15 +59,13 @@ def __add_noise(output, sdev, noise='gauss'):
         raise ValueError('Invalid type of noise: {}'.format(noise))
 
 
-def idarx(u, y, order, delay):
+def idarx(data, order, delay):
     ''' Compute the regression matrix and the expected values
 
     Parameters
     ----------
-    u : numpy matrix
-        The inputs
-    y : column matrix
-        The outputs
+    data : numpy matrix
+        The input/output matrix
     order : non null positive int
         The system order
     delay : positive int
@@ -76,22 +80,21 @@ def idarx(u, y, order, delay):
     '''
     __valid_order(order)
     __valid_delay(delay)
-    u = array(u)
-    y = array(y)
+    inp, out = __get_io(data)
     min_points = 3 * order * delay
-    n_inps = u.shape[1]
-    if y.size < min_points:
+    n_inps = inp.shape[1]
+    if out.size < min_points:
         raise ValueError(
             'The length of u and y must be at least 3 * order * delay')
-    n_equations = y.size - order - delay
+    n_equations = out.size - order - delay
     B = zeros((n_equations, 1))
     A = zeros((n_equations, order * (n_inps + 1)))
     for i in range(n_equations):
         for j in range(order):
-            A[i, j] = y[i + order + delay - j, 0]
+            A[i, j] = out[i + order + delay - j, 0]
             for k in range(n_inps):
-                A[i, j + order * (k + 1)] = u[i + order - j, k]
-        B[i, 0] = y[i + order + delay, 0]
+                A[i, j + order * (k + 1)] = inp[i + order - j, k]
+        B[i, 0] = out[i + order + delay, 0]
     return A, B
 
 
