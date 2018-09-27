@@ -1,6 +1,6 @@
 from __future__ import print_function
 from __future__ import division
-from numpy import zeros, array, vstack
+from numpy import zeros, array, vstack, dot
 from numpy.random import normal
 from sample.metrics import stdev
 from sample.estimation import recursive_lse, mat_lse
@@ -98,6 +98,7 @@ def idarx(u, y, order, delay):
 
 
 def __idarmax_p(u, y, order, delay, e):
+    ''' Auxiliary function to generate the system's regressors '''
     __validate_id(u, y, order, delay)
     if y.size != e.size:
         raise ValueError('The length of e and y must be the same!')
@@ -122,7 +123,17 @@ def __idarmax_p(u, y, order, delay, e):
     return A, B
 
 
-def idarmax(u, y, order, delay, conf=None, ffactor=None):
+def __initarmax(u, y, order, delay):
+    ''' Auxiliary functino to initialize some variables for ARMAX id '''
+    A, B = idarx(u, y, order, delay)
+    theta, _ = recursive_lse(A, B, 1000, 1.0)
+    ypred = dot(A, theta)
+    res = B - ypred
+    sdev = stdev(res)
+    return res, sdev, 2 * sdev
+
+
+def idarmax(u, y, order, delay):
     ''' Identify the structural parameters of the ARMAX system
 
     Parameters
@@ -142,44 +153,56 @@ def idarmax(u, y, order, delay, conf=None, ffactor=None):
         The identified parameters
     res : numpy column matrix
         The residues of the identified parameters theta
+    ypred : numpy column matrix
+        The predicted outputs
     '''
-    isrec = not (conf is None and ffactor is None)
-    A, B = idarx(u, y, order, delay)
-    theta, res, ypred, _ = recursive_lse(A, B, conf, ffactor)
-    stdev_res = stdev(res)
-    stdev_res_ant = 2.0 * stdev_res
     N = 0
-    phist = []
-    while abs(stdev_res_ant - stdev_res) / stdev_res > 0.01 and N < 30:
-        e_estim = vstack((zeros((order + delay, 1)), res))
-        A, B = __idarmax_p(u, y, order, delay, e_estim)
-        if isrec:
-            theta, res, ypred, phist = recursive_lse(A, B, conf, ffactor)
-        else:
-            theta, res, ypred = mat_lse(A, B)
-        stdev_res_ant = stdev_res
-        stdev_res = stdev(res)
-        N = N + 1
-    return theta, res, ypred, phist
-
-
-def __idarmax(u, y, order, delay):
-    while abs(stdev_res_ant - stdev_res) / stdev_res > 0.01 and N < 30:
+    res, sdev, oldsdev = __initarmax(u, y, order, delay)
+    while abs(oldsdev - sdev) / sdev > 0.01 and N < 30:
         e_estim = vstack((zeros((order + delay, 1)), res))
         A, B = __idarmax_p(u, y, order, delay, e_estim)
         theta, res, ypred = mat_lse(A, B)
-        stdev_res_ant = stdev_res
-        stdev_res = stdev(res)
+        oldsdev = sdev
+        sdev = stdev(res)
         N = N + 1
-    return theta, res, ypred, phist
+    return theta, res, ypred
 
 
-def __idarmaxr(u, y, order, delay):
-    while abs(stdev_res_ant - stdev_res) / stdev_res > 0.01 and N < 30:
+def idarmaxr(u, y, order, delay, conf=1000, forg=1.0):
+    ''' Identify the structural parameters of the ARMAX system with a
+        recursive strategy
+
+    Parameters
+    ----------
+    u : numpy column matrix (n, 1)
+        Inputs of the system
+    y : numpy column matrix (n, 1)
+        Outputs of the system
+    order : int
+        Order of the system
+    delay : int
+        The delay of the system
+
+    Returns
+    -------
+    theta : numpy column matrix
+        The identified parameters
+    res : numpy column matrix
+        The residues of the identified parameters theta
+    ypred : numpy column matrix
+        The predicted outputs
+    phist : matrix
+        The paramater variation along samples
+    '''
+    N = 0
+    res, sdev, oldsdev = __initarmax(u, y, order, delay)
+    while abs(oldsdev - sdev) / sdev > 0.01 and N < 30:
         e_estim = vstack((zeros((order + delay, 1)), res))
         A, B = __idarmax_p(u, y, order, delay, e_estim)
-        theta, res, ypred, phist = recursive_lse(A, B, conf, ffactor)
-        stdev_res_ant = stdev_res
-        stdev_res = stdev(res)
+        theta, phist = recursive_lse(A, B, conf, forg)
+        ypred = dot(A, theta)
+        res = B - ypred
+        oldsdev = sdev
+        sdev = stdev(res)
         N = N + 1
     return theta, res, ypred, phist

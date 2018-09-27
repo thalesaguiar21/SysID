@@ -42,7 +42,7 @@ class TestIdentification(unittest.TestCase):
         self.fname = 'ipca1.dat'
         self.inp = [0, 1]
         u, y = data.r_dots(self.fname, self.inp, sep='\t')
-        theta, _, _, _ = sid.identify_armax_rec(u, y, self.order, self.delay)
+        theta, _, _, _ = sid.idarmaxr(u, y, self.order, self.delay)
         self.assertEqual(theta.shape, (3, 1))
 
     def test_armax_shape_double(self):
@@ -50,7 +50,7 @@ class TestIdentification(unittest.TestCase):
         self.fname = 'ipca2.dat'
         self.inp = [0, 1, 2]
         u, y = data.r_dots(self.fname, self.inp, sep='\t')
-        theta, _, _, _ = sid.identify_armax_rec(u, y, self.order, self.delay)
+        theta, _, _, _ = sid.idarmaxr(u, y, self.order, self.delay)
         self.assertEqual(theta.shape, (4, 1))
 
     def test_armax_shape_triple(self):
@@ -58,5 +58,5 @@ class TestIdentification(unittest.TestCase):
         self.fname = 'ipca3.dat'
         self.inp = [0, 1, 2, 3]
         u, y = data.r_dots(self.fname, self.inp, sep='\t')
-        theta, _, _, _ = sid.identify_armax_rec(u, y, self.order, self.delay)
+        theta, _, _, _ = sid.idarmaxr(u, y, self.order, self.delay)
         self.assertEqual(theta.shape, (5, 1))
