@@ -55,7 +55,27 @@ def __add_noise(output, sdev, noise='gauss'):
         raise ValueError('Invalid type of noise: {}'.format(noise))
 
 
-def identify_arx_params(u, y, order, delay):
+def idarx(u, y, order, delay):
+    ''' Compute the regression matrix and the expected values
+
+    Parameters
+    ----------
+    u : numpy matrix
+        The inputs
+    y : column matrix
+        The outputs
+    order : non null positive int
+        The system order
+    delay : positive int
+        The system delay
+
+    Returns
+    -------
+    A : matrix
+        The regression matrix
+    B : matrix
+        The expected values
+    '''
     __valid_order(order)
     __valid_delay(delay)
     u = array(u)
@@ -100,7 +120,7 @@ def identify_arx(u, y, order, delay):
     ypred : numpy column matrix
         The predicted output
     '''
-    A, B = identify_arx_params(u, y, order, delay)
+    A, B = idarx(u, y, order, delay)
     return mat_lse(A, B)
 
 
@@ -133,14 +153,14 @@ def identify_arx_rec(u, y, order, delay, conf=1000, ffactor=1.0):
     phist : matrix
         The parameters variation along the samples
     '''
-    A, B = identify_arx_params(u, y, order, delay)
+    A, B = idarx(u, y, order, delay)
     theta, phist = recursive_lse(A, B, conf, ffactor)
     ypred = dot(A, theta)
     res = B - ypred
     return theta, res, ypred, phist
 
 
-def __identify_armax_int_params(u, y, order, delay, e):
+def idarmax(u, y, order, delay, e):
     __validate_id(u, y, order, delay)
     if y.size != e.size:
         raise ValueError('The length of e and y must be the same!')
@@ -166,12 +186,12 @@ def __identify_armax_int_params(u, y, order, delay, e):
 
 
 def __identify_armax_int(u, y, order, delay, e):
-    A, B = __identify_armax_int_params(u, y, order, delay, e)
+    A, B = idarmax(u, y, order, delay, e)
     return mat_lse(A, B)
 
 
 def __identify_armax_int_rec(u, y, order, delay, e, conf, ffactor):
-    A, B = __identify_armax_int_params(u, y, order, delay, e)
+    A, B = idarmax(u, y, order, delay, e)
     theta, phist = recursive_lse(A, B, conf, ffactor)
     ypred = dot(A, theta)
     res = B - ypred
