@@ -44,7 +44,7 @@ def r_dots(fname, columns=[0, 1], sep=' '):
     data = open('examples/' + fname, 'r')
     data = data.readlines()
     dots = []
-    for i in xrange(len(data)):
+    for i in range(len(data)):
         data[i] = data[i].strip('\n').strip(' ').strip(sep).split(sep)
         row = []
         for elm in data[i]:

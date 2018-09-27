@@ -26,8 +26,8 @@ def train_rec(fname, order, atr, inp=[0, 1], ffac=1.0, est='arx'):
     with open(rs_file + '.rs', 'w') as file:
         header = ['stdev', 'aic', 'fpe', 'order', 'atr', 'params']
         file.write(f_templ.format(*header))
-        for order in xrange(1, order + 1):
-            for atr in xrange(0, atr + 1):
+        for order in range(1, order + 1):
+            for atr in range(0, atr + 1):
                 theta = []
                 res = []
                 u, y = dut.r_dots(tsets[fname], inp, '\t')
@@ -50,8 +50,8 @@ def train(fname, order, delay, inp=[0, 1], est='arx'):
     with open(rs_file + '.rs', 'w') as file:
         header = ['stdev', 'aic', 'fpe', 'order', 'delay', 'params']
         file.write(f_templ.format(*header))
-        for order in xrange(1, order + 1):
-            for delay in xrange(0, delay + 1):
+        for order in range(1, order + 1):
+            for delay in range(0, delay + 1):
                 theta = []
                 res = []
                 u, y = dut.r_dots(tsets[fname], inp, '\t')
@@ -110,7 +110,7 @@ def plot_hist(fname, order, delay, est='arx', inp=[0, 1], smp=None):
     tarmax = __gen_history(tsets[fname], order, delay, inp, est='armax')
     smp = len(tarx[0]) if smp is None else smp
 
-    for i in xrange(len(tarx)):
+    for i in range(len(tarx)):
         print tarx[i][-1]
 
     plt.figure(1, figsize=(8, 6))
@@ -118,7 +118,7 @@ def plot_hist(fname, order, delay, est='arx', inp=[0, 1], smp=None):
     plt.title('ARX')
     plt.ylabel('Valor do parametro')
 
-    for i in xrange(len(tarx)):
+    for i in range(len(tarx)):
         lab = 'p' + str(i + 1)
         plt.plot(tarx[i][:smp], linewidth=1.5, label=lab)
         plt.legend()
@@ -129,7 +129,7 @@ def plot_hist(fname, order, delay, est='arx', inp=[0, 1], smp=None):
     plt.ylabel('Valor do parametro')
     plt.xlabel('Tempo')
 
-    for i in xrange(len(tarmax)):
+    for i in range(len(tarmax)):
         lab = 'p' + str(i + 1)
         plt.plot(tarmax[i][:smp], linewidth=1.5, label=lab)
         plt.legend()

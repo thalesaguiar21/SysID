@@ -1,6 +1,6 @@
 import unittest
-from context import identification as sid
-from context import dut
+from sample import identification as sid
+from sample import data
 
 
 class TestIdentification(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestIdentification(unittest.TestCase):
         self.setUp()
         self.fname = 'ipca1.dat'
         self.inp = [0, 1]
-        u, y = dut.r_dots(self.fname, self.inp, sep='\t')
+        u, y = data.r_dots(self.fname, self.inp, sep='\t')
         A, _ = sid.idarx(u, y, self.order, self.delay)
         self.assertEqual(A.shape, (288, 2))
 
@@ -24,7 +24,7 @@ class TestIdentification(unittest.TestCase):
         self.setUp()
         self.fname = 'ipca2.dat'
         self.inp = [0, 1, 2]
-        u, y = dut.r_dots(self.fname, self.inp, sep='\t')
+        u, y = data.r_dots(self.fname, self.inp, sep='\t')
         A, _ = sid.idarx(u, y, self.order, self.delay)
         self.assertEqual(A.shape, (287, 3))
 
@@ -33,7 +33,7 @@ class TestIdentification(unittest.TestCase):
         self.fname = 'ipca2.dat'
         self.inp = [0, 1, 2]
         self.order = 2
-        u, y = dut.r_dots(self.fname, self.inp, sep='\t')
+        u, y = data.r_dots(self.fname, self.inp, sep='\t')
         A, _ = sid.idarx(u, y, self.order, self.delay)
         self.assertEqual(A.shape, (286, 6))
 
@@ -41,7 +41,7 @@ class TestIdentification(unittest.TestCase):
         self.setUp()
         self.fname = 'ipca1.dat'
         self.inp = [0, 1]
-        u, y = dut.r_dots(self.fname, self.inp, sep='\t')
+        u, y = data.r_dots(self.fname, self.inp, sep='\t')
         theta, _, _, _ = sid.identify_armax_rec(u, y, self.order, self.delay)
         self.assertEqual(theta.shape, (3, 1))
 
@@ -49,7 +49,7 @@ class TestIdentification(unittest.TestCase):
         self.setUp()
         self.fname = 'ipca2.dat'
         self.inp = [0, 1, 2]
-        u, y = dut.r_dots(self.fname, self.inp, sep='\t')
+        u, y = data.r_dots(self.fname, self.inp, sep='\t')
         theta, _, _, _ = sid.identify_armax_rec(u, y, self.order, self.delay)
         self.assertEqual(theta.shape, (4, 1))
 
@@ -57,6 +57,6 @@ class TestIdentification(unittest.TestCase):
         self.setUp()
         self.fname = 'ipca3.dat'
         self.inp = [0, 1, 2, 3]
-        u, y = dut.r_dots(self.fname, self.inp, sep='\t')
+        u, y = data.r_dots(self.fname, self.inp, sep='\t')
         theta, _, _, _ = sid.identify_armax_rec(u, y, self.order, self.delay)
         self.assertEqual(theta.shape, (5, 1))

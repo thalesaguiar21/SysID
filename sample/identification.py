@@ -1,10 +1,10 @@
 from __future__ import print_function
 from __future__ import division
-from numpy import zeros, array, dot, vstack
+from numpy import zeros, array, vstack
 from numpy.random import normal
-from metrics import stdev
-from estimation import recursive_lse, mat_lse
-import pdb
+from sample.metrics import stdev
+from sample.estimation import recursive_lse, mat_lse
+# import pdb
 
 ''' This module has some estimation functions developed during the class
 of introduction to the Identification of Systems
@@ -88,10 +88,10 @@ def idarx(u, y, order, delay):
     n_equations = y.size - order - delay
     B = zeros((n_equations, 1))
     A = zeros((n_equations, order * (n_inps + 1)))
-    for i in xrange(n_equations):
-        for j in xrange(order):
+    for i in range(n_equations):
+        for j in range(order):
             A[i, j] = y[i + order + delay - j, 0]
-            for k in xrange(n_inps):
+            for k in range(n_inps):
                 A[i, j + order * (k + 1)] = u[i + order - j, k]
         B[i, 0] = y[i + order + delay, 0]
     return A, B
@@ -112,10 +112,10 @@ def __idarmax_p(u, y, order, delay, e):
     n_equation = n_points - order - delay
     B = zeros((n_equation, 1))
     A = zeros((n_equation, order * (n_inps + 2)))
-    for i in xrange(n_equation):
-        for j in xrange(order):
+    for i in range(n_equation):
+        for j in range(order):
             A[i, j] = y[i + order + delay - j, 0]
-            for k in xrange(n_inps):
+            for k in range(n_inps):
                 A[i, j + order * (k + 1)] = u[i + order - j, k]
             A[i, j + n_inps * order] = e[i + order + delay - j, 0]
         B[i, 0] = y[i + order + delay, 0]

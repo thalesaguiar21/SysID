@@ -82,10 +82,10 @@ def recursive_lse(coef, rs, conf=1000, ffac=1.0, noise=None):
     Y = matrix(rs)
     params_variation = []
 
-    for k in xrange(psi.shape[0]):
+    for k in range(psi.shape[0]):
         psi_k = psi[k, :].T  # To keep notation similar to math formulae
         K = dot(P, psi_k) / ((dot(psi_k.T, dot(P, psi_k))) + ffac)
-        params_variation.append([theta[i, 0] for i in xrange(theta.shape[0])])
+        params_variation.append([theta[i, 0] for i in range(theta.shape[0])])
         theta = theta + dot(K, (Y[k] - dot(psi_k.T, theta)))
         P = (1.0 / ffac) * (P - dot(K, dot(psi_k.T, P)))
 

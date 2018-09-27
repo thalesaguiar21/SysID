@@ -1,7 +1,6 @@
 import unittest
 import numpy as np
-from context import dut
-import pdb
+from sample import data
 
 
 class TestDataUtils(unittest.TestCase):
@@ -20,7 +19,7 @@ class TestDataUtils(unittest.TestCase):
         self.inp = [0, 1]
         einp = [141.31, 198.22, 282.96]
         eout = [198.22, 282.96, 403.73]
-        inp, out = dut.r_dots(self.fname, self.inp)
+        inp, out = data.r_dots(self.fname, self.inp)
         inp, out = self.__format_inout(inp, out)
         self.assertSequenceEqual(einp, inp.tolist())
         self.assertSequenceEqual(eout, out.tolist())
@@ -28,7 +27,7 @@ class TestDataUtils(unittest.TestCase):
     def test_empty_inp(self):
         self.setUp()
         try:
-            dut.r_dots(self.fname, [])
+            data.r_dots(self.fname, [])
             self.fail()
         except ValueError:
             pass
@@ -36,7 +35,7 @@ class TestDataUtils(unittest.TestCase):
     def test_none_inp(self):
         self.setUp()
         try:
-            dut.r_dots(self.fname, None)
+            data.r_dots(self.fname, None)
             self.fail()
         except ValueError:
             pass
@@ -44,7 +43,7 @@ class TestDataUtils(unittest.TestCase):
     def test_inp_offbound(self):
         self.setUp()
         try:
-            dut.r_dots(self.fname, [0, 1000, 4])
+            data.r_dots(self.fname, [0, 1000, 4])
             self.fail()
         except IndexError:
             pass
@@ -52,7 +51,7 @@ class TestDataUtils(unittest.TestCase):
     def test_inp_negative(self):
         self.setUp()
         try:
-            dut.r_dots(self.fname, [0, -1, -400])
+            data.r_dots(self.fname, [0, -1, -400])
             self.fail()
         except ValueError:
             pass
@@ -64,7 +63,7 @@ class TestDataUtils(unittest.TestCase):
                 [198.22, 0.650154],
                 [282.96, 0.637122]]
         eout = [198.22, 282.96, 403.73]
-        inp, out = dut.r_dots(self.fname, self.inp)
+        inp, out = data.r_dots(self.fname, self.inp)
         inp, out = self.__format_inout(inp, out)
         einp = np.append([], einp)
         self.assertSequenceEqual(einp.tolist(), inp.tolist())
@@ -74,7 +73,7 @@ class TestDataUtils(unittest.TestCase):
         self.setUp()
         self.inp = [0, 1, None]
         try:
-            dut.r_dots(self.fname, self.inp)
+            data.r_dots(self.fname, self.inp)
             self.fail()
         except ValueError:
             pass
@@ -83,7 +82,7 @@ class TestDataUtils(unittest.TestCase):
         self.setUp()
         self.inp = [0, 1, 4]
         try:
-            dut.r_dots(self.fname, self.inp)
+            data.r_dots(self.fname, self.inp)
             self.fail()
         except IndexError:
             pass
@@ -92,7 +91,7 @@ class TestDataUtils(unittest.TestCase):
         self.setUp()
         self.inp = [0, 1, -1]
         try:
-            dut.r_dots(self.fname, self.inp)
+            data.r_dots(self.fname, self.inp)
             self.fail()
         except ValueError:
             pass
@@ -101,7 +100,7 @@ class TestDataUtils(unittest.TestCase):
         self.setUp()
         self.inp = [0, 1, 1000]
         try:
-            dut.r_dots(self.fname, self.inp)
+            data.r_dots(self.fname, self.inp)
             self.fail()
         except IndexError:
             pass
@@ -109,6 +108,6 @@ class TestDataUtils(unittest.TestCase):
     def test_shapes(self):
         self.setUp()
         self.inp = [0, 1, 1]
-        inp, out = dut.r_dots(self.fname, self.inp)
+        inp, out = data.r_dots(self.fname, self.inp)
         self.assertEqual(inp.shape, (3, 2))
         self.assertEqual(out.shape, (3, 1))

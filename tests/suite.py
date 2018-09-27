@@ -1,14 +1,15 @@
+from tests import test_data as tdata
+from tests import test_estimation as testim
+from tests import test_identification as tid
 import unittest
-import test_estimation as testim
-import test_data as tdata
-import test_identification as tid
 
 
-sestim = unittest.TestLoader().loadTestsFromModule(testim)
-sdata = unittest.TestLoader().loadTestsFromModule(tdata)
-sid = unittest.TestLoader().loadTestsFromModule(tid)
+def run():
+    sestim = unittest.TestLoader().loadTestsFromModule(testim)
+    sdata = unittest.TestLoader().loadTestsFromModule(tdata)
+    sid = unittest.TestLoader().loadTestsFromModule(tid)
 
-suites = [sestim, sdata, sid]
+    suites = [sestim, sdata, sid]
 
-for suite in suites:
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    for suite in suites:
+        unittest.TextTestRunner(verbosity=2).run(suite)

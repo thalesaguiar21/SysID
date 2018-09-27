@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from context import estimation as est
+from sample import estimation as est
 
 
 def assertSequenceAlmostEqual(testcase, seq1, seq2, tol):
