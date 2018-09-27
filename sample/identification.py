@@ -134,15 +134,13 @@ def __initarmax(u, y, order, delay):
     return res, sdev, 2 * sdev
 
 
-def idarmax(u, y, order, delay):
+def idarmax(data, order, delay):
     ''' Identify the structural parameters of the ARMAX system
 
     Parameters
     ----------
-    u : numpy column matrix (n, 1)
-        Inputs of the system
-    y : numpy column matrix (n, 1)
-        Outputs of the system
+    data : numpy matrix
+        Inputs and outpputs of the system
     order : int
         Order of the system
     delay : int
@@ -157,11 +155,12 @@ def idarmax(u, y, order, delay):
     ypred : numpy column matrix
         The predicted outputs
     '''
+    inp, out = __get_io(data)
     N = 0
-    res, sdev, oldsdev = __initarmax(u, y, order, delay)
+    res, sdev, oldsdev = __initarmax(inp, out, order, delay)
     while abs(oldsdev - sdev) / sdev > 0.01 and N < 30:
         e_estim = vstack((zeros((order + delay, 1)), res))
-        A, B = __idarmax_p(u, y, order, delay, e_estim)
+        A, B = __idarmax_p(inp, out, order, delay, e_estim)
         theta, res, ypred = mat_lse(A, B)
         oldsdev = sdev
         sdev = stdev(res)
