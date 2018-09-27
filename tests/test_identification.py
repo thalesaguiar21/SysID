@@ -1,4 +1,4 @@
-import unittest2 as unittest
+import unittest
 from context import identification as sid
 from context import dut
 
