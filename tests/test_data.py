@@ -111,3 +111,43 @@ class TestDataUtils(unittest.TestCase):
         inp, out = data.r_dots(self.fname, self.inp)
         self.assertEqual(inp.shape, (3, 2))
         self.assertEqual(out.shape, (3, 1))
+
+    def test_rdots(self):
+        self.setUp()
+        expected = [141.31, 198.22, 0.64945, 282.96, 198.22, 282.96,
+                    0.650154, 403.73, 282.96, 403.73, 0.637122, 581.49]
+        dots = data.readdots(self.fname, sep=' ')
+        dots = np.append([], dots).tolist()
+        self.assertSequenceEqual(expected, dots)
+
+    def test_rdots_shape(self):
+        self.setUp()
+        dots = data.readdots(self.fname, sep=' ')
+        self.assertEqual(dots.shape, (3, 4))
+
+    def test_rdots_nonefile(self):
+        self.setUp()
+        self.fname = None
+        try:
+            dots = data.readdots(self.fname, sep=' ')
+            self.fail('Dots from non existing file {}', dots)
+        except ValueError:
+            pass
+
+    def test_rdots_zerofile(self):
+        self.setUp()
+        self.fname = ''
+        try:
+            dots = data.readdots(self.fname, sep=' ')
+            self.fail('Dots from non existing file {}', dots)
+        except ValueError:
+            pass
+
+    def test_rdots_nofile(self):
+        self.setUp()
+        self.fname = 'filethatdoesnotexistinfolder.dat'
+        try:
+            dots = data.readdots(self.fname, sep=' ')
+            self.fail('Dots from non existing file {}', dots)
+        except FileNotFoundError:
+            pass

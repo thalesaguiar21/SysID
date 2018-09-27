@@ -20,6 +20,24 @@ def __validate_xcol(cols):
         raise ValueError('Input must have positive indexes only SEQ!')
 
 
+def readdots(fname, sep='\t'):
+    ''' Read a given file and create a matrix with its contents '''
+    if fname is None or len(fname) == 0:
+        raise ValueError('No file name given!')
+
+    dots = []
+    with open('examples/' + fname, 'r') as data:
+        data = data.readlines()
+        try:
+            for i in range(len(data)):
+                data[i] = data[i].strip('\n').strip(' ').split(sep)
+                data[i] = [float(num) for num in data[i]]
+                dots.append(data[i][:])
+            return matrix(dots)
+        except ValueError:
+            print('There are non number characters on your file!')
+
+
 def r_dots(fname, columns=[0, 1], sep=' '):
     ''' Read a file separated by spaces into two matrices.
 
