@@ -97,70 +97,7 @@ def idarx(u, y, order, delay):
     return A, B
 
 
-def identify_arx(u, y, order, delay):
-    ''' Identify the structural parameters of the ARX system
-
-    Parameters
-    ----------
-    u : numpy column matrix (n, 1)
-        Inputs of the system
-    y : numpy column matrix (n, 1)
-        Outputs of the system
-    order : int
-        Order of the system
-    delay : int
-        The delay of the system
-
-    Returns
-    -------
-    theta : numpy column matrix
-        The identified parameters
-    res : numpy column matrix
-        The residue of the estimated outputs
-    ypred : numpy column matrix
-        The predicted output
-    '''
-    A, B = idarx(u, y, order, delay)
-    return mat_lse(A, B)
-
-
-def identify_arx_rec(u, y, order, delay, conf=1000, ffactor=1.0):
-    ''' Identify the structural parameters of the ARX system
-
-    Parameters
-    ----------
-    u : numpy column matrix (n, 1)
-        Inputs of the system
-    y : numpy column matrix (n, 1)
-        Outputs of the system
-    order : int
-        Order of the system
-    delay : int
-        The delay of the system
-    conf : float, defaults to 1000
-        The initial confidence value for covariance matrix
-    ffactor : float, defaults to 1.0
-        The forgetting factor of LSE
-
-    Returns
-    -------
-    theta : numpy column matrix
-        The identified parameters
-    res : numpy column matrix
-        The residue of the estimated output
-    ypred : numpy column matrix
-        The predicted output
-    phist : matrix
-        The parameters variation along the samples
-    '''
-    A, B = idarx(u, y, order, delay)
-    theta, phist = recursive_lse(A, B, conf, ffactor)
-    ypred = dot(A, theta)
-    res = B - ypred
-    return theta, res, ypred, phist
-
-
-def idarmax(u, y, order, delay, e):
+def __idarmax_p(u, y, order, delay, e):
     __validate_id(u, y, order, delay)
     if y.size != e.size:
         raise ValueError('The length of e and y must be the same!')
@@ -185,20 +122,7 @@ def idarmax(u, y, order, delay, e):
     return A, B
 
 
-def __identify_armax_int(u, y, order, delay, e):
-    A, B = idarmax(u, y, order, delay, e)
-    return mat_lse(A, B)
-
-
-def __identify_armax_int_rec(u, y, order, delay, e, conf, ffactor):
-    A, B = idarmax(u, y, order, delay, e)
-    theta, phist = recursive_lse(A, B, conf, ffactor)
-    ypred = dot(A, theta)
-    res = B - ypred
-    return theta, res, ypred, phist
-
-
-def identify_armax_rec(u, y, order, delay, conf=1000, ffactor=1.0):
+def idarmax(u, y, order, delay, conf=None, ffactor=None):
     ''' Identify the structural parameters of the ARMAX system
 
     Parameters
@@ -219,50 +143,43 @@ def identify_armax_rec(u, y, order, delay, conf=1000, ffactor=1.0):
     res : numpy column matrix
         The residues of the identified parameters theta
     '''
-    theta, res, ypred, _ = identify_arx_rec(u, y, order, delay, conf, ffactor)
+    isrec = not (conf is None and ffactor is None)
+    A, B = idarx(u, y, order, delay)
+    theta, res, ypred, _ = recursive_lse(A, B, conf, ffactor)
     stdev_res = stdev(res)
     stdev_res_ant = 2.0 * stdev_res
     N = 0
     phist = []
     while abs(stdev_res_ant - stdev_res) / stdev_res > 0.01 and N < 30:
         e_estim = vstack((zeros((order + delay, 1)), res))
-        theta, res, ypred, phist = __identify_armax_int_rec(
-            u, y, order, delay, e_estim, conf, ffactor)
+        A, B = __idarmax_p(u, y, order, delay, e_estim)
+        if isrec:
+            theta, res, ypred, phist = recursive_lse(A, B, conf, ffactor)
+        else:
+            theta, res, ypred = mat_lse(A, B)
         stdev_res_ant = stdev_res
         stdev_res = stdev(res)
         N = N + 1
     return theta, res, ypred, phist
 
 
-def identify_armax(u, y, order, delay):
-    ''' Identify the structural parameters of the ARMAX system
-
-    Parameters
-    ----------
-    u : numpy column matrix (n, 1)
-        Inputs of the system
-    y : numpy column matrix (n, 1)
-        Outputs of the system
-    order : int
-        Order of the system
-    delay : int
-        The delay of the system
-
-    Returns
-    -------
-    theta : numpy column matrix
-        The identified parameters
-    res : numpy column matrix
-        The residues of the identified parameters theta
-    '''
-    theta, res, _ = identify_arx(u, y, order, delay)
-    stdev_res = stdev(res)
-    stdev_res_ant = 2.0 * stdev_res
-    N = 0
+def __idarmax(u, y, order, delay):
     while abs(stdev_res_ant - stdev_res) / stdev_res > 0.01 and N < 30:
         e_estim = vstack((zeros((order + delay, 1)), res))
-        theta, res, ypred = __identify_armax_int(u, y, order, delay, e_estim)
+        A, B = __idarmax_p(u, y, order, delay, e_estim)
+        theta, res, ypred = mat_lse(A, B)
         stdev_res_ant = stdev_res
         stdev_res = stdev(res)
         N = N + 1
-    return theta, res, ypred
+    return theta, res, ypred, phist
+
+
+def __idarmaxr(u, y, order, delay):
+    while abs(stdev_res_ant - stdev_res) / stdev_res > 0.01 and N < 30:
+        e_estim = vstack((zeros((order + delay, 1)), res))
+        A, B = __idarmax_p(u, y, order, delay, e_estim)
+        theta, res, ypred, phist = recursive_lse(A, B, conf, ffactor)
+        stdev_res_ant = stdev_res
+        stdev_res = stdev(res)
+        N = N + 1
+    return theta, res, ypred, phist
