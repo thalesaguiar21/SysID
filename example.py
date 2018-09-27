@@ -1,6 +1,7 @@
-import data.utils as dut
-import sample.identification as sid
-import sample.metrics as met
+from sample import data as dut
+from sample import estimation as solv
+from sample import identification as sid
+from sample import metrics as met
 from numpy import append, matrix, dot
 import matplotlib.pyplot as plt
 import pdb
@@ -20,7 +21,12 @@ valsets = {'bbeam': 'validation/ballbeam_val.dat',
            'ipca3': 'ipca3.dat'}
 
 
-def train_rec(fname, order, atr, inp=[0, 1], ffac=1.0, est='arx'):
+def __comp_residue(theta, A, B):
+    ypred = dot(theta, A)
+    return ypred, B - ypred
+
+
+def train_rec(fname, order, atr, inp=[0, 1], conf=1000, ffac=1.0, est='arx'):
     f_templ = '{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{}\n'
     rs_file = 'results/' + fname + '_train_' + est
     with open(rs_file + '.rs', 'w') as file:
@@ -32,11 +38,12 @@ def train_rec(fname, order, atr, inp=[0, 1], ffac=1.0, est='arx'):
                 res = []
                 u, y = dut.r_dots(tsets[fname], inp, '\t')
                 if est == 'arx':
-                    theta, res, _, _ = sid.identify_arx_rec(
-                        u, y, order, atr)
+                    A, B = sid.idarx(u, y, order, atr)
+                    theta, _ = solv.recursive_lse(A, B, conf, ffac)
+                    _, res = __comp_residue(theta, A, B)
                 else:
-                    theta, res, _, _ = sid.identify_armax_rec(
-                        u, y, order, atr)
+                    theta, res, _, _ = sid.idarmaxr(
+                        u, y, order, atr, conf, ffac)
                 stdev = format(met.stdev(res), '.3e')
                 aic = format(met.aic(res, theta.size), '.3e')
                 fpe = format(met.fpe(res, theta.size), '.3e')
@@ -56,9 +63,10 @@ def train(fname, order, delay, inp=[0, 1], est='arx'):
                 res = []
                 u, y = dut.r_dots(tsets[fname], inp, '\t')
                 if est == 'arx':
-                    theta, res, _ = sid.identify_arx(u, y, order, delay)
+                    A, B = sid.idarx(u, y, order, delay)
+                    theta, res, _ = solv.mat_lse(A, B)
                 else:
-                    theta, res, _ = sid.identify_armax(u, y, order, delay)
+                    theta, res, _ = sid.idarmax(u, y, order, delay)
                 stdev = format(met.stdev(res), '.3e')
                 aic = format(met.aic(res, theta.size), '.3e')
                 fpe = format(met.fpe(res, theta.size), '.3e')
@@ -68,10 +76,10 @@ def train(fname, order, delay, inp=[0, 1], est='arx'):
 
 def validate(fname, order, delay, theta, scatrate=3, inp=[0, 1], est='arx'):
     u, y = dut.r_dots(valsets[fname], inp, '\t')
-    reg, B = sid.identify_arx_params(u, y, order, delay)
+    reg, B = sid.idarx(u, y, order, delay)
     ypred = dot(reg, theta)
-    print '{:.3e}'.format(met.stdev(B - ypred))
-    print '{:.3e}'.format(met.aic(B - ypred, 2 * order))
+    print('{:.3e}'.format(met.stdev(B - ypred)))
+    print('{:.3e}'.format(met.aic(B - ypred, 2 * order)))
     __plot_test(append([], y), append([], ypred), scatrate)
 
 
@@ -92,11 +100,10 @@ def __gen_history(fname, order, delay, inp, est='arx'):
     u, y = dut.r_dots(fname, inp, '\t')
     phist = []
     if est == 'arx':
-        _, _, _, phist = sid.identify_arx_rec(
-            u, y, order, delay)
+        A, B = sid.idarx(u, y, order, delay)
+        _, phist = solv.recursive_lse(A, B)
     elif est == 'armax':
-        _, _, _, phist = sid.identify_armax_rec(
-            u, y, order, delay)
+        _, _, _, phist = sid.idarmaxr(u, y, order, delay)
     else:
         raise ValueError('Could no identify structure: ' + est)
     phist = matrix(phist)
@@ -111,7 +118,7 @@ def plot_hist(fname, order, delay, est='arx', inp=[0, 1], smp=None):
     smp = len(tarx[0]) if smp is None else smp
 
     for i in range(len(tarx)):
-        print tarx[i][-1]
+        print(tarx[i][-1])
 
     plt.figure(1, figsize=(8, 6))
     plt.subplot(211)
