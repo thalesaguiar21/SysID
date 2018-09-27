@@ -20,29 +20,31 @@ valsets = {'bbeam': 'validation/ballbeam_val.dat',
            'ipca3': 'ipca3.dat'}
 
 
-def train_rec(fname, order, delay, inp=0, out=1, est='arx'):
+def train_rec(fname, order, atr, inp=[0, 1], ffac=1.0, est='arx'):
     f_templ = '{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{}\n'
     rs_file = 'results/' + fname + '_train_' + est
     with open(rs_file + '.rs', 'w') as file:
-        header = ['stdev', 'aic', 'fpe', 'order', 'delay', 'params']
+        header = ['stdev', 'aic', 'fpe', 'order', 'atr', 'params']
         file.write(f_templ.format(*header))
         for order in xrange(1, order + 1):
-            for delay in xrange(0, delay + 1):
+            for atr in xrange(0, atr + 1):
                 theta = []
                 res = []
-                u, y = dut.r_dots(tsets[fname], inp, out, '\t')
+                u, y = dut.r_dots(tsets[fname], inp, '\t')
                 if est == 'arx':
-                    theta, res, _, _ = sid.identify_arx_rec(u, y, order, delay)
+                    theta, res, _, _ = sid.identify_arx_rec(
+                        u, y, order, atr)
                 else:
-                    theta, res, _, _ = sid.identify_armax_rec(u, y, order, delay)
+                    theta, res, _, _ = sid.identify_armax_rec(
+                        u, y, order, atr)
                 stdev = format(met.stdev(res), '.3e')
                 aic = format(met.aic(res, theta.size), '.3e')
                 fpe = format(met.fpe(res, theta.size), '.3e')
                 t = [theta[i, 0] for i in range(theta.shape[0])]
-                file.write(f_templ.format(stdev, aic, fpe, order, delay, t))
+                file.write(f_templ.format(stdev, aic, fpe, order, atr, t))
 
 
-def train(fname, order, delay, inp=0, out=1, est='arx'):
+def train(fname, order, delay, inp=[0, 1], est='arx'):
     f_templ = '{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{}\n'
     rs_file = 'results/' + fname + '_train_' + est
     with open(rs_file + '.rs', 'w') as file:
@@ -52,7 +54,7 @@ def train(fname, order, delay, inp=0, out=1, est='arx'):
             for delay in xrange(0, delay + 1):
                 theta = []
                 res = []
-                u, y = dut.r_dots(tsets[fname], inp, out, '\t')
+                u, y = dut.r_dots(tsets[fname], inp, '\t')
                 if est == 'arx':
                     theta, res, _ = sid.identify_arx(u, y, order, delay)
                 else:
@@ -64,8 +66,8 @@ def train(fname, order, delay, inp=0, out=1, est='arx'):
                 file.write(f_templ.format(stdev, aic, fpe, order, delay, t))
 
 
-def validate(fname, order, delay, theta, scatrate=3, inp=0, out=1, est='arx'):
-    u, y = dut.r_dots(valsets[fname], inp, out, '\t')
+def validate(fname, order, delay, theta, scatrate=3, inp=[0, 1], est='arx'):
+    u, y = dut.r_dots(valsets[fname], inp, '\t')
     reg, B = sid.identify_arx_params(u, y, order, delay)
     ypred = dot(reg, theta)
     print '{:.3e}'.format(met.stdev(B - ypred))
@@ -79,20 +81,22 @@ def __plot_test(real, estim, scatrate):
     plt.xlabel('Amostras')
     real = real[estpts:]
     scatreal = [real[i * scatrate] for i in range((estim.size) / scatrate)]
-    plt.plot(range(0, estim.size - 1, scatrate), scatreal, 'r', linewidth=1)
+    plt.plot(range(0, estim.size - 1, scatrate), scatreal, 'ro', markersize=2)
     plt.plot(estim, 'k:', linewidth=1)
 
     plt.subplots_adjust(0.08, 0.2, 0.98, 0.95, None, 0.3)
     plt.show()
 
 
-def __gen_history(fname, order, delay, inp, out, est='arx'):
-    u, y = dut.r_dots(fname, inp, out, '\t')
+def __gen_history(fname, order, delay, inp, est='arx'):
+    u, y = dut.r_dots(fname, inp, '\t')
     phist = []
     if est == 'arx':
-        _, _, _, phist = sid.identify_arx_rec(u, y, order, delay)
+        _, _, _, phist = sid.identify_arx_rec(
+            u, y, order, delay)
     elif est == 'armax':
-        _, _, _, phist = sid.identify_armax_rec(u, y, order, delay)
+        _, _, _, phist = sid.identify_armax_rec(
+            u, y, order, delay)
     else:
         raise ValueError('Could no identify structure: ' + est)
     phist = matrix(phist)
@@ -100,10 +104,10 @@ def __gen_history(fname, order, delay, inp, out, est='arx'):
     return hist
 
 
-def plot_hist(fname, order, delay, est='arx', inp=0, out=1, smp=None):
-    colors = ['b', 'g', 'r', 'm', 'y', 'k']
-    tarx = __gen_history(tsets[fname], order, delay, inp, out, est='arx')
-    tarmax = __gen_history(tsets[fname], order, delay, inp, out, est='armax')
+def plot_hist(fname, order, delay, est='arx', inp=[0, 1], smp=None):
+    # colors = ['b', 'g', 'r', 'm', 'y', 'k']
+    tarx = __gen_history(tsets[fname], order, delay, inp, est='arx')
+    tarmax = __gen_history(tsets[fname], order, delay, inp, est='armax')
     smp = len(tarx[0]) if smp is None else smp
 
     for i in xrange(len(tarx)):
@@ -134,16 +138,15 @@ def plot_hist(fname, order, delay, est='arx', inp=0, out=1, smp=None):
     plt.show()
 
 
-theta = matrix([0.9999992445586894, -3.4349580862332306e-08,
-                6.208282204955337e-07, 4.092937663233838e-08]).T
+theta = matrix([0.9999999998278026, 1.2894267218843419e-10]).T
 
-train_rec('ipca1', 5, 0, inp=0, out=1)
-train_rec('ipca2', 5, 0, inp=[0, 1], out=2)
-train_rec('ipca3', 5, 0, inp=[0, 1, 2], out=3)
-train_rec('ipca1', 5, 0, inp=0, out=1, est='armax')
-train_rec('ipca2', 5, 0, inp=[0, 1], out=2, est='armax')
-train_rec('ipca3', 5, 0, inp=[0, 1, 2], out=3, est='armax')
+# train_rec('ipca1', 5, 0, inp=[0, 1], ffac=.95)
+# train_rec('ipca2', 5, 0, inp=[0, 1, 2], ffac=.95)
+# train_rec('ipca3', 5, 0, inp=[0, 1, 2, 3], ffac=.95)
+# train_rec('ipca1', 5, 0, inp=[0, 1], est='armax', ffac=.95)
+# train_rec('ipca2', 5, 0, inp=[0, 1, 2], est='armax', ffac=.95)
+# train_rec('ipca3', 5, 0, inp=[0, 1, 2, 3], est='armax', ffac=.95)
 # train('tank1', 3, 8, inp=0, out=2)
 # train('tank1', 3, 3, inp=0, out=2, est='armax')
-# validate('ipca3', 1, 0, theta, inp=[0, 1, 2], out=3, scatrate=2)
-# plot_hist('ipca3', 4, 0, inp=[0, 1, 2], out=3)
+# validate('ipca1', 1, 0, theta, inp=[0, 1], scatrate=2)
+plot_hist('ipca1', 1, 0, inp=[0, 1])

@@ -178,7 +178,7 @@ def __identify_armax_int_rec(u, y, order, delay, e, conf, ffactor):
     return theta, res, ypred, phist
 
 
-def identify_armax_rec(u, y, order, delay, conf=1000, ffac=1.0):
+def identify_armax_rec(u, y, order, delay, conf=1000, ffactor=1.0):
     ''' Identify the structural parameters of the ARMAX system
 
     Parameters
@@ -199,7 +199,7 @@ def identify_armax_rec(u, y, order, delay, conf=1000, ffac=1.0):
     res : numpy column matrix
         The residues of the identified parameters theta
     '''
-    theta, res, ypred, _ = identify_arx_rec(u, y, order, delay, conf, ffac)
+    theta, res, ypred, _ = identify_arx_rec(u, y, order, delay, conf, ffactor)
     stdev_res = stdev(res)
     stdev_res_ant = 2.0 * stdev_res
     N = 0
@@ -207,7 +207,7 @@ def identify_armax_rec(u, y, order, delay, conf=1000, ffac=1.0):
     while abs(stdev_res_ant - stdev_res) / stdev_res > 0.01 and N < 30:
         e_estim = vstack((zeros((order + delay, 1)), res))
         theta, res, ypred, phist = __identify_armax_int_rec(
-            u, y, order, delay, e_estim, conf, ffac)
+            u, y, order, delay, e_estim, conf, ffactor)
         stdev_res_ant = stdev_res
         stdev_res = stdev(res)
         N = N + 1
