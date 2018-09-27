@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import division
 from numpy import eye, dot, zeros, ndarray, matrix
 from numpy.linalg import inv
 

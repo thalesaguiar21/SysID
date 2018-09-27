@@ -1,7 +1,7 @@
 from numpy import matrix
 from random import randint
 from math import floor
-import pdb
+# import pdb
 
 
 def __is_positive_seq(seq):

@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import division
 from numpy import zeros, array, vstack, dot
 from numpy.random import normal
 from sample.metrics import stdev
