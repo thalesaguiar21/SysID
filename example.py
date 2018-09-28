@@ -28,7 +28,7 @@ def __comp_residue(theta, A, B):
 
 def train_rec(fname, order, atr, inp=[0, 1], conf=1000, ffac=1.0, est='arx'):
     f_templ = '{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{}\n'
-    rs_file = 'results/' + fname + '_train_' + est
+    rs_file = 'results/' + fname + '_rectrain_' + est
     with open(rs_file + '.rs', 'w') as file:
         header = ['stdev', 'aic', 'fpe', 'order', 'atr', 'params']
         file.write(f_templ.format(*header))
