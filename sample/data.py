@@ -5,22 +5,6 @@ from contextlib import contextmanager
 # import pdb
 
 
-def __is_positive_seq(seq):
-    for e in seq:
-        if e is None or e < 0:
-            return False
-    return True
-
-
-def __validate_xcol(cols):
-    if cols is None:
-        raise ValueError('Input must be a scalar or array!')
-    elif cols == [] or len(cols) < 2:
-        raise ValueError('There must have at least two elements!')
-    elif isinstance(cols, list) and not __is_positive_seq(cols):
-        raise ValueError('Input must have positive indexes only SEQ!')
-
-
 @contextmanager
 def rsfile(fname, stg='tr', sys='arx'):
     ''' Create a file into results folder with the pattern:
@@ -67,41 +51,6 @@ def open_matrix(fname, sep='\t'):
         yield matrix(dots)
     finally:
         file.close()
-
-
-def r_dots(fname, columns=[0, 1], sep=' '):
-    ''' Read a file separated by spaces into two matrices.
-
-    Paramaters
-    ----------
-    fname : str
-        The name of a file inside 'examples' folder
-    columns : list of int
-        Columns indexes, output is the last element input are the others
-    sep : str, defaults to ' '
-        The file seperator character
-
-    Returns
-    -------
-    u : np matrix (n, M)
-        The i-column, where i is in xcol
-    y : np matrix (n, 1)
-        The last column of the file
-    '''
-    __validate_xcol(columns)
-    ninps = len(columns) - 1
-    data = open('examples/' + fname, 'r')
-    data = data.readlines()
-    dots = []
-    for i in range(len(data)):
-        data[i] = data[i].strip('\n').strip(' ').strip(sep).split(sep)
-        row = []
-        for elm in data[i]:
-            if elm not in ['', '\n', '\t']:
-                row.append(float(elm))
-        dots.append([row[x] for x in columns])
-    dots = matrix(dots)
-    return dots[:, :ninps], dots[:, -1]
 
 
 def separate_subset(fname, tsize=.3):
