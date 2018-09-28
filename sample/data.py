@@ -21,7 +21,20 @@ def __validate_xcol(cols):
 
 
 def readdots(fname, sep='\t'):
-    ''' Read a given file and create a matrix with its contents '''
+    ''' Read a given file and create a matrix with its contents
+
+    Parameters
+    ----------
+    fname : str
+        A file name in examples folder
+    sep: str, defaults to '\t'
+        The file separator
+
+    Returns
+    -------
+    dots : unmpy matrix
+        A matrix with the file data
+    '''
     if fname is None or len(fname) == 0:
         raise ValueError('No file name given!')
 
