@@ -22,6 +22,24 @@ def __validate_xcol(cols):
 
 
 @contextmanager
+def rsfile(fname, stg='tr', sys='arx'):
+    ''' Create a file into results folder with the pattern:
+
+                sys_fname_stage.rs
+    '''
+    fileline = '{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{}\n'
+    header = ['stdev', 'aic', 'fpe', 'order', 'delay', 'params']
+    name = '_'.join([sys, fname, stg])
+    fullname = 'results/' + name + '.rs'
+    file = open(fullname, 'w')
+    file.write(fileline.format(*header))
+    try:
+        yield file
+    finally:
+        file.close()
+
+
+@contextmanager
 def open_matrix(fname, sep='\t'):
     ''' Read a given file and create a matrix with its contents
 
@@ -42,7 +60,7 @@ def open_matrix(fname, sep='\t'):
         dots = []
         fcontent = file.readlines()
         for i in range(len(fcontent)):
-            fcontent[i] = fcontent[i].strip('\n')
+            fcontent[i] = fcontent[i].strip('\n\t ')
             fcontent[i] = fcontent[i].strip(' ').split(sep)
             fcontent[i] = [float(num) for num in fcontent[i]]
             dots.append(fcontent[i][:])
