@@ -119,3 +119,21 @@ def mat_lse(coef, rs):
     ypred = dot(coef, theta)
     res = rs - ypred
     return theta, res, ypred
+
+
+def kalman_filter(A, B, Q, u, y):
+    # propagation
+    X = []
+    P = []
+    C = []
+    R = .5
+    Id = eye(len(u)) * 1000
+    for t in range(len(u)):
+        X = dot(A, X) + dot(B, u[t])
+        P = dot(A, dot(P, A.T)) + Q
+        # update
+        num = dot(P, C.T)
+        K = num / (dot(C, num) + R)
+        X = X + dot(K, y[t] - dot(C, X))
+        P = dot((Id - dot(K, C)), P)
+    return X
