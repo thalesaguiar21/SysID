@@ -1,4 +1,4 @@
-from numpy import zeros, array, vstack, dot
+from numpy import zeros, vstack, dot
 from numpy.random import normal
 from sample.metrics import stdev
 from sample.estimation import recursive_lse, mat_lse
@@ -14,6 +14,7 @@ def __get_io(data):
     the rest as inputs
     '''
     return data[:, :-1], data[:, -1:]
+
 
 def __valid_io(u, y):
     if u.shape[0] != y.size:
@@ -124,9 +125,9 @@ def __idarmax_p(u, y, order, delay, e):
     return A, B
 
 
-def __initarmax(u, y, order, delay):
+def __initarmax(dat, order, delay):
     ''' Auxiliary functino to initialize some variables for ARMAX id '''
-    A, B = idarx(u, y, order, delay)
+    A, B = idarx(dat, order, delay)
     theta, _ = recursive_lse(A, B, 1000, 1.0)
     ypred = dot(A, theta)
     res = B - ypred
@@ -134,12 +135,12 @@ def __initarmax(u, y, order, delay):
     return res, sdev, 2 * sdev
 
 
-def idarmax(data, order, delay):
+def idarmax(dat, order, delay):
     ''' Identify the structural parameters of the ARMAX system
 
     Parameters
     ----------
-    data : numpy matrix
+    dat : numpy matrix
         Inputs and outpputs of the system
     order : int
         Order of the system
@@ -155,9 +156,9 @@ def idarmax(data, order, delay):
     ypred : numpy column matrix
         The predicted outputs
     '''
-    inp, out = __get_io(data)
+    inp, out = __get_io(dat)
     N = 0
-    res, sdev, oldsdev = __initarmax(inp, out, order, delay)
+    res, sdev, oldsdev = __initarmax(dat, order, delay)
     while abs(oldsdev - sdev) / sdev > 0.01 and N < 30:
         e_estim = vstack((zeros((order + delay, 1)), res))
         A, B = __idarmax_p(inp, out, order, delay, e_estim)
@@ -168,7 +169,7 @@ def idarmax(data, order, delay):
     return theta, res, ypred
 
 
-def idarmaxr(u, y, order, delay, conf=1000, forg=1.0):
+def idarmaxr(dat, order, delay, conf=1000, forg=1.0):
     ''' Identify the structural parameters of the ARMAX system with a
         recursive strategy
 
@@ -195,7 +196,8 @@ def idarmaxr(u, y, order, delay, conf=1000, forg=1.0):
         The paramater variation along samples
     '''
     N = 0
-    res, sdev, oldsdev = __initarmax(u, y, order, delay)
+    u, y = __get_io(dat)
+    res, sdev, oldsdev = __initarmax(dat, order, delay)
     while abs(oldsdev - sdev) / sdev > 0.01 and N < 30:
         e_estim = vstack((zeros((order + delay, 1)), res))
         A, B = __idarmax_p(u, y, order, delay, e_estim)

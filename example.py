@@ -32,18 +32,18 @@ def train_rec(fname, order, atr, inp=[0, 1], conf=1000, ffac=1.0, est='arx'):
     with open(rs_file + '.rs', 'w') as file:
         header = ['stdev', 'aic', 'fpe', 'order', 'atr', 'params']
         file.write(f_templ.format(*header))
+        dat = dut.readdots(valsets[fname], sep='\t')
         for order in range(1, order + 1):
             for atr in range(0, atr + 1):
                 theta = []
                 res = []
-                u, y = dut.r_dots(tsets[fname], inp, '\t')
                 if est == 'arx':
-                    A, B = sid.idarx(u, y, order, atr)
+                    A, B = sid.idarx(dat, order, atr)
                     theta, _ = solv.recursive_lse(A, B, conf, ffac)
                     _, res = __comp_residue(theta, A, B)
                 else:
                     theta, res, _, _ = sid.idarmaxr(
-                        u, y, order, atr, conf, ffac)
+                        dat, order, atr, conf, ffac)
                 stdev = format(met.stdev(res), '.3e')
                 aic = format(met.aic(res, theta.size), '.3e')
                 fpe = format(met.fpe(res, theta.size), '.3e')
@@ -57,16 +57,16 @@ def train(fname, order, delay, inp=[0, 1], est='arx'):
     with open(rs_file + '.rs', 'w') as file:
         header = ['stdev', 'aic', 'fpe', 'order', 'delay', 'params']
         file.write(f_templ.format(*header))
+        dat = dut.readdots(tsets[fname], sep='\t')
         for order in range(1, order + 1):
             for delay in range(0, delay + 1):
                 theta = []
                 res = []
-                u, y = dut.r_dots(tsets[fname], inp, '\t')
                 if est == 'arx':
-                    A, B = sid.idarx(u, y, order, delay)
+                    A, B = sid.idarx(dat, order, delay)
                     theta, res, _ = solv.mat_lse(A, B)
                 else:
-                    theta, res, _ = sid.idarmax(u, y, order, delay)
+                    theta, res, _ = sid.idarmax(dat, order, delay)
                 stdev = format(met.stdev(res), '.3e')
                 aic = format(met.aic(res, theta.size), '.3e')
                 fpe = format(met.fpe(res, theta.size), '.3e')
@@ -75,12 +75,12 @@ def train(fname, order, delay, inp=[0, 1], est='arx'):
 
 
 def validate(fname, order, delay, theta, scatrate=3, inp=[0, 1], est='arx'):
-    u, y = dut.r_dots(valsets[fname], inp, '\t')
-    reg, B = sid.idarx(u, y, order, delay)
+    dat = dut.readdots(valsets[fname], sep='\t')
+    reg, B = sid.idarx(dat, order, delay)
     ypred = dot(reg, theta)
     print('{:.3e}'.format(met.stdev(B - ypred)))
     print('{:.3e}'.format(met.aic(B - ypred, 2 * order)))
-    __plot_test(append([], y), append([], ypred), scatrate)
+    __plot_test(append([], dat[:, -1:]), append([], ypred), scatrate)
 
 
 def __plot_test(real, estim, scatrate):
@@ -97,13 +97,13 @@ def __plot_test(real, estim, scatrate):
 
 
 def __gen_history(fname, order, delay, inp, est='arx'):
-    u, y = dut.r_dots(fname, inp, '\t')
+    dat = dut.readdots(fname, sep='\t')
     phist = []
     if est == 'arx':
-        A, B = sid.idarx(u, y, order, delay)
+        A, B = sid.idarx(dat, order, delay)
         _, phist = solv.recursive_lse(A, B)
     elif est == 'armax':
-        _, _, _, phist = sid.idarmaxr(u, y, order, delay)
+        _, _, _, phist = sid.idarmaxr(dat, order, delay)
     else:
         raise ValueError('Could no identify structure: ' + est)
     phist = matrix(phist)
