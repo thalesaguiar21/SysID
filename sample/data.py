@@ -1,6 +1,7 @@
 from numpy import matrix
 from random import randint
 from math import floor
+from contextlib import contextmanager
 # import pdb
 
 
@@ -20,7 +21,8 @@ def __validate_xcol(cols):
         raise ValueError('Input must have positive indexes only SEQ!')
 
 
-def readdots(fname, sep='\t'):
+@contextmanager
+def open_matrix(fname, sep='\t'):
     ''' Read a given file and create a matrix with its contents
 
     Parameters
@@ -35,20 +37,18 @@ def readdots(fname, sep='\t'):
     dots : unmpy matrix
         A matrix with the file data
     '''
-    if fname is None or len(fname) == 0:
-        raise ValueError('No file name given!')
-
-    dots = []
-    with open('examples/' + fname, 'r') as data:
-        data = data.readlines()
-        try:
-            for i in range(len(data)):
-                data[i] = data[i].strip('\n').strip(' ').split(sep)
-                data[i] = [float(num) for num in data[i]]
-                dots.append(data[i][:])
-            return matrix(dots)
-        except ValueError:
-            print('There are non number characters on your file!')
+    file = open(fname, mode='r')
+    try:
+        dots = []
+        fcontent = file.readlines()
+        for i in range(len(fcontent)):
+            fcontent[i] = fcontent[i].strip('\n')
+            fcontent[i] = fcontent[i].strip(' ').split(sep)
+            fcontent[i] = [float(num) for num in fcontent[i]]
+            dots.append(fcontent[i][:])
+        yield matrix(dots)
+    finally:
+        file.close()
 
 
 def r_dots(fname, columns=[0, 1], sep=' '):
