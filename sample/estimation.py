@@ -34,7 +34,7 @@ def __is_column_vector(rs):
         raise ValueError('Result matrix must be a column matrix.')
 
 
-def recursive_lse(coef, rs, noise=None, conf=1000, ffac=1.0):
+def recursive_lse(coef, rs, conf=1000, ffac=1.0, noise=None):
     """ Compute the Least Square estimation of a system
     K = (P - Psi) / Psi' x P x Psi
     Theta = Theta + K[y - Psi' x Theta]
@@ -43,9 +43,9 @@ def recursive_lse(coef, rs, noise=None, conf=1000, ffac=1.0):
     Args:
         coef (ndarray): The coefficient matrix
         rs (ndarray): The expected result matrix
-        noise (ndarray): The noise to be added to the system output
         conf (float): Confidence of the covariance matrix. Defaults to 1000
         ffac (float): The forgetting factor. Defaults to 1.0
+        noise (ndarray): The noise to be added to the system output
 
     Returns:
         theta : the estimated aprameters
