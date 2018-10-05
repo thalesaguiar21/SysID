@@ -7,10 +7,17 @@ from contextlib import contextmanager
 
 @contextmanager
 def rsfile(fname, stg='tr', sys='arx'):
-    ''' Create a file into results folder with the pattern:
+    """ Create a file into results folder with the pattern:
+    sys_fname_stage.rs
 
-                sys_fname_stage.rs
-    '''
+    Args:
+        fname (str): the file path
+        stg (str): the identification stage
+        sys (str): the system structure
+
+    Yields:
+        file: The file to write the results
+    """
     fileline = '{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{}\n'
     header = ['stdev', 'aic', 'fpe', 'order', 'delay', 'params']
     name = '_'.join([sys, fname, stg])
@@ -25,20 +32,15 @@ def rsfile(fname, stg='tr', sys='arx'):
 
 @contextmanager
 def open_matrix(fname, sep='\t'):
-    ''' Read a given file and create a matrix with its contents
+    """ Read a given file and create a matrix with its contents
 
-    Parameters
-    ----------
-    fname : str
-        A file name in examples folder
-    sep: str, defaults to '\t'
-        The file separator
+    Args:
+        fname (str): A file name in examples folder
+        sep (str): The file separator. Defaults to '\t'
 
-    Returns
-    -------
-    dots : unmpy matrix
+    Returns:
         A matrix with the file data
-    '''
+    """
     file = open(fname, mode='r')
     try:
         dots = []
@@ -54,14 +56,16 @@ def open_matrix(fname, sep='\t'):
 
 
 def separate_subset(fname, tsize=.3):
-    '''
-    Parameters
-    ----------
-    fname : str
-        A file inside examples folder
-    tsize : float
-        The fraction of the set to be used as validation
-    '''
+    """ Randomly separate a data file into train/test subsets without intersect
+    ion.
+
+    Args:
+        fname (str): A file inside examples folder.
+        tsize (float): The fraction of the set to be used as validation.
+
+    Returns:
+        Create two files into training and validation folders under example.
+    """
     data = open('examples/' + fname, 'r')
     data = data.readlines()
     n_vpoints = int(floor(len(data) * tsize))

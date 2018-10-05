@@ -1,15 +1,13 @@
 from numpy import eye, dot, zeros, ndarray, matrix
 from numpy.linalg import inv
 
-''' This module has some estimation functions developed during the class
-of introduction to the Identification of Systems
-'''
+""" This module has some estimation functions developed during the class
+of introduction to the Identification of Systems.
+"""
 
 
 def __is_legal_param(coef, rs):
-    ''' Performs validations along the number of parameters and dimension
-    of the given system.
-    '''
+    """ Performs validations along the number of parameters """
     if coef is None or (coef is not None and coef.size == 0):
         raise ValueError('Coefficient matrix is None or empty!')
     if rs is None or (rs is not None and rs.size == 0):
@@ -22,51 +20,37 @@ def __is_legal_param(coef, rs):
 
 
 def __is_column_vector(rs):
-    ''' Check whether the given input is a row matrix (1, )
+    """ Check whether the given input is a row matrix (1, )
 
-    Parameters
-    ----------
-    rs : np array
-        The object to be checked
+    Args:
+        rs (ndarray) : The object to be checked
 
-    Raise
-    -----
-    ValueError when the object fails as a row matrix
-    '''
+    Raises:
+        ValueError: when the object fails as a row matrix
+    """
     if rs is not None and not isinstance(rs, ndarray):
         raise ValueError('Invalid type of object ' + str(type(rs)))
     if rs is not None and rs.shape[1] != 1:
         raise ValueError('Result matrix must be a column matrix.')
 
 
-def recursive_lse(coef, rs, conf=1000, ffac=1.0, noise=None):
-    '''
-    Compute the Least Square estimation of a system
+def recursive_lse(coef, rs, noise=None, conf=1000, ffac=1.0):
+    """ Compute the Least Square estimation of a system
+    K = (P - Psi) / Psi' x P x Psi
+    Theta = Theta + K[y - Psi' x Theta]
+    P =  P - K x Psi' x P
 
-    y(k) = psi(k)theta(k) + eta(k)
+    Args:
+        coef (ndarray): The coefficient matrix
+        rs (ndarray): The expected result matrix
+        noise (ndarray): The noise to be added to the system output
+        conf (float): Confidence of the covariance matrix. Defaults to 1000
+        ffac (float): The forgetting factor. Defaults to 1.0
 
-    Parameters
-    ----------
-    coef : np matrix
-        The coefficient matrix
-    rs : column matrix (N, 1)
-        The expected result matrix
-    conf : float, defaults to 1000
-        The initital confidence of the covariance matrix
-    ffac : float [1e-4, 1.0]
-        The forgetting factor
-    noise : column matrix
-        The noise to be added to the system output
-
-    Returns
-    ------
-    theta : np column matrix
-        The identified parameters
-    P : np matrix
-        The final covariance matrix
-    variation : np matrix
-        The parameters variation after each iteration
-    '''
+    Returns:
+        theta : the estimated aprameters
+        variation : paramaters gain over time
+    """
     conf = 0 if conf < 0 else conf
     ffac = 1e-4 if ffac < 1e-4 else ffac
     ffac = 1.0 if ffac > 1.0 else ffac
@@ -91,27 +75,19 @@ def recursive_lse(coef, rs, conf=1000, ffac=1.0, noise=None):
 
 
 def mat_lse(coef, rs):
-    '''
-    Compute the LSE with matricial operations, that is,
+    """ Compute the LSE with matricial operations, that is,
     AX = B, then
     X = (A'A)A'B
 
-    Parameters
-    ----------
-    coef : matrix
-        The coefficients matrix
-    rs : column matrix
-        The result matrix
+    Args:
+        coef (ndarray): The coefficients matrix
+        rs (ndarray): The result matrix
 
-    Returns
-    -------
-    theta : column matrix
-        The values that solve the system
-    res : column matrix
-        The residues of identified outputs
-    ypred : column matrix
-        The identified outputs
-    '''
+    Returns:
+        theta: The estimated parameters
+        res: The residues of identified outputs
+        ypred: The identified outputs
+    """
     __is_column_vector(rs)
     __is_legal_param(coef, rs)
     pinv = inv(dot(coef.T, coef))
