@@ -4,56 +4,75 @@ from sample.metrics import stdev
 from sample.estimation import recursive_lse, mat_lse
 # import pdb
 
-''' This module has some estimation functions developed during the class
-of introduction to the Identification of Systems
-'''
+""" This module has some identiication functions developed during the class
+of introduction to the Identification of Systems.
+"""
 
 
-def __get_io(data):
-    ''' Given a matrix, separate the last columns as output and
-    the rest as inputs
-    '''
+class _Printable(object):
+    def __init__(self, name):
+        self._name = '' if name is None else name
+
+    def __str__(self):
+        return self._name
+
+
+class Structure(_Printable):
+    """ Supported system structures """
+    pass
+
+
+ARX = Structure('arx')
+ARMAX = Structure('armax')
+SIMPLE_CAR = Structure('scar')
+
+
+class Stage(_Printable):
+    """ Supported identification steps """
+    pass
+
+
+TRAINING = Stage('train')
+VALIDATING = Stage('val')
+
+
+def _get_io(data):
+    """ Separate the last columns as output and the rest as inputs """
     return data[:, :-1], data[:, -1:]
 
 
-def __valid_io(u, y):
+def _valid_io(u, y):
     if u.shape[0] != y.size:
         raise ValueError('Number of input/outputs must be equal!')
 
 
-def __valid_delay(delay):
+def _valid_delay(delay):
     if delay < 0:
         raise ValueError('Delay ust be positive!')
 
 
-def __valid_order(order):
+def _valid_order(order):
     if order < 1:
         raise ValueError('Order must be a non null positive number!')
 
 
-def __validate_id(u, y, order, delay):
-    __valid_io(u, y)
-    __valid_delay(delay)
-    __valid_order(order)
+def _validate_id(u, y, order, delay):
+    _valid_io(u, y)
+    _valid_delay(delay)
+    _valid_order(order)
 
 
-def __add_noise(output, sdev, noise='gauss'):
-    ''' Add noise to the given output of the system
+def _add_noise(output, sdev, noise='gauss'):
+    """ Add noise to the given output of the system
 
-    Parameters
-    ----------
-    output : numpy column matrix
-        The clean output
-    stdev : float
-        The standard deviation of the noise
-    noise : str, defaults to 'gauss'
-        The type of noise
+    Args:
+        output (ndarray): The clean output
+        stdev (float): The standard deviation of the noise
+        noise (str): The type of noise
 
-    Returns
-    -------
-    y_noise : numpy column matrix
-        The output of the system with added noise
-    '''
+    Returns:
+        y_noise (ndarray): The output of the system with added noise
+    """
     if noise == 'gauss':
         return output + normal(0, sdev, (output.size, 1))
     else:
@@ -61,27 +80,20 @@ def __add_noise(output, sdev, noise='gauss'):
 
 
 def idarx(data, order, delay):
-    ''' Compute the regression matrix and the expected values
+    """ Compute the regression matrix and the expected values
 
-    Parameters
-    ----------
-    data : numpy matrix
-        The input/output matrix
-    order : non null positive int
-        The system order
-    delay : positive int
-        The system delay
+    Args:
+        data (ndarray): The input/output matrix
+        order (int): The system order
+        delay (int): The system delay
 
-    Returns
-    -------
-    A : matrix
-        The regression matrix
-    B : matrix
-        The expected values
-    '''
-    __valid_order(order)
-    __valid_delay(delay)
-    inp, out = __get_io(data)
+    Returns:
+        A (2D list): The regression matrix
+        B (2D list): The expected values
+    """
+    _valid_order(order)
+    _valid_delay(delay)
+    inp, out = _get_io(data)
     min_points = 3 * order * delay
     n_inps = inp.shape[1]
     if out.size < min_points:
@@ -99,9 +111,9 @@ def idarx(data, order, delay):
     return A, B
 
 
-def __idarmax_p(u, y, order, delay, e):
-    ''' Auxiliary function to generate the system's regressors '''
-    __validate_id(u, y, order, delay)
+def _idarmax_p(u, y, order, delay, e):
+    """ Auxiliary function to generate the system's regressors """
+    _validate_id(u, y, order, delay)
     if y.size != e.size:
         raise ValueError('The length of e and y must be the same!')
 
@@ -125,8 +137,8 @@ def __idarmax_p(u, y, order, delay, e):
     return A, B
 
 
-def __initarmax(dat, order, delay):
-    ''' Auxiliary functino to initialize some variables for ARMAX id '''
+def _initarmax(dat, order, delay):
+    """ Auxiliary function to initialize some variables for ARMAX id """
     A, B = idarx(dat, order, delay)
     theta, _ = recursive_lse(A, B, 1000, 1.0)
     ypred = dot(A, theta)
@@ -136,32 +148,24 @@ def __initarmax(dat, order, delay):
 
 
 def idarmax(dat, order, delay):
-    ''' Identify the structural parameters of the ARMAX system
+    """ Identify the structural parameters of the ARMAX system
 
-    Parameters
-    ----------
-    dat : numpy matrix
-        Inputs and outpputs of the system
-    order : int
-        Order of the system
-    delay : int
-        The delay of the system
+    Args:
+        dat (ndarray): Inputs and outputs of the system
+        order (int): Order of the system
+        delay (int): The delay of the system
 
-    Returns
-    -------
-    theta : numpy column matrix
-        The identified parameters
-    res : numpy column matrix
-        The residues of the identified parameters theta
-    ypred : numpy column matrix
-        The predicted outputs
-    '''
-    inp, out = __get_io(dat)
+    Returns:
+        theta (ndarray): The identified parameters
+        res (ndarray): The residues of the identified parameters theta
+        ypred (ndarray): The predicted outputs
+    """
+    inp, out = _get_io(dat)
     N = 0
-    res, sdev, oldsdev = __initarmax(dat, order, delay)
+    res, sdev, oldsdev = _initarmax(dat, order, delay)
     while abs(oldsdev - sdev) / sdev > 0.01 and N < 30:
         e_estim = vstack((zeros((order + delay, 1)), res))
-        A, B = __idarmax_p(inp, out, order, delay, e_estim)
+        A, B = _idarmax_p(inp, out, order, delay, e_estim)
         theta, res, ypred = mat_lse(A, B)
         oldsdev = sdev
         sdev = stdev(res)
@@ -170,37 +174,27 @@ def idarmax(dat, order, delay):
 
 
 def idarmaxr(dat, order, delay, conf=1000, forg=1.0):
-    ''' Identify the structural parameters of the ARMAX system with a
-        recursive strategy
+    """ Identify the structural parameters of the ARMAX system with a
+    recursive strategy
 
-    Parameters
-    ----------
-    u : numpy column matrix (n, 1)
-        Inputs of the system
-    y : numpy column matrix (n, 1)
-        Outputs of the system
-    order : int
-        Order of the system
-    delay : int
-        The delay of the system
+    Args:
+        u (ndarray): System exogenous inputs
+        y (ndarray): Measured outputs of the system
+        order (int): Order of the system
+        delay (int): The delay of the system
 
-    Returns
-    -------
-    theta : numpy column matrix
-        The identified parameters
-    res : numpy column matrix
-        The residues of the identified parameters theta
-    ypred : numpy column matrix
-        The predicted outputs
-    phist : matrix
-        The paramater variation along samples
-    '''
+    Returns:
+        theta (ndarray): The identified parameters
+        res (ndarray): The residues of the identified parameters theta
+        ypred (ndarray): The predicted outputs
+        phist (2D array): The paramater variation along samples
+    """
     N = 0
-    u, y = __get_io(dat)
-    res, sdev, oldsdev = __initarmax(dat, order, delay)
+    u, y = _get_io(dat)
+    res, sdev, oldsdev = _initarmax(dat, order, delay)
     while abs(oldsdev - sdev) / sdev > 0.01 and N < 30:
         e_estim = vstack((zeros((order + delay, 1)), res))
-        A, B = __idarmax_p(u, y, order, delay, e_estim)
+        A, B = _idarmax_p(u, y, order, delay, e_estim)
         theta, phist = recursive_lse(A, B, conf, forg)
         ypred = dot(A, theta)
         res = B - ypred
