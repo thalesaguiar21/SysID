@@ -2,25 +2,36 @@ from numpy import matrix
 from random import randint
 from math import floor
 from contextlib import contextmanager
+from sample.identification import ARX, ARMAX, SIMPLE_CAR
+from sample.identification import TRAINING, VALIDATING
 # import pdb
 
 
 @contextmanager
-def rsfile(fname, stg='tr', sys='arx'):
+def rsfile(fname, stg=TRAINING, struc=ARX):
     """ Create a file into results folder with the pattern:
-    sys_fname_stage.rs
+    struc_fname_stage.rs
 
     Args:
         fname (str): the file path
-        stg (str): the identification stage
-        sys (str): the system structure
+        stg (Stage): the identification stage. Defaults to TRAINING
+        struc (Structure): the system structure. Defaults to ARX
 
     Yields:
         file: The file to write the results
+
+    Raises:
+        ValueError: if struc is not supported
+        ValueError: if stg is not supported
     """
+    if struc not in [ARX, ARMAX, SIMPLE_CAR]:
+        raise ValueError('Unknown structure: ' + struc)
+    if stg not in [TRAINING, VALIDATING]:
+        raise ValueError('Unknown stage: ' + stg)
+
     fileline = '{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{}\n'
     header = ['stdev', 'aic', 'fpe', 'order', 'delay', 'params']
-    name = '_'.join([sys, fname, stg])
+    name = '_'.join([struc, fname, stg])
     fullname = 'results/' + name + '.rs'
     file = open(fullname, 'w')
     file.write(fileline.format(*header))
@@ -55,20 +66,20 @@ def open_matrix(fname, sep='\t'):
         file.close()
 
 
-def separate_subset(fname, tsize=.3):
+def separate_subset(fname, vsize=.3):
     """ Randomly separate a data file into train/test subsets without intersect
     ion.
 
     Args:
         fname (str): A file inside examples folder.
-        tsize (float): The fraction of the set to be used as validation.
+        vsize (float): The fraction of the set to be used as validation.
 
     Returns:
         Create two files into training and validation folders under example.
     """
     data = open('examples/' + fname, 'r')
     data = data.readlines()
-    n_vpoints = int(floor(len(data) * tsize))
+    n_vpoints = int(floor(len(data) * vsize))
     n_tpoints = len(data) - n_vpoints
     vpoints = []
     while len(vpoints) < n_vpoints:

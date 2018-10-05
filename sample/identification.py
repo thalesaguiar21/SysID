@@ -9,6 +9,33 @@ of introduction to the Identification of Systems.
 """
 
 
+class _Printable(object):
+    def __init__(self, name):
+        self._name = '' if name is None else name
+
+    def __str__(self):
+        return self._name
+
+
+class Structure(_Printable):
+    """ Supported system structures """
+    pass
+
+
+ARX = Structure('arx')
+ARMAX = Structure('armax')
+SIMPLE_CAR = Structure('scar')
+
+
+class Stage(_Printable):
+    """ Supported identification steps """
+    pass
+
+
+TRAINING = Stage('train')
+VALIDATING = Stage('val')
+
+
 def _get_io(data):
     """ Separate the last columns as output and the rest as inputs """
     return data[:, :-1], data[:, -1:]
