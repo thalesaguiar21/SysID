@@ -121,19 +121,34 @@ def mat_lse(coef, rs):
     return theta, res, ypred
 
 
-def kalman_filter(A, B, Q, u, y):
-    # propagation
-    X = []
-    P = []
-    C = []
-    R = .5
-    Id = eye(len(u)) * 1000
+def kalman_filter(A, B, H, u, y, Q=None, R=None):
+    """ Compute the Kalman filter
+
+    Args:
+        A (ndarray): The state matrix
+        B (ndarray): The exogen matrix
+        u (ndarray): The system's exogenous inputs
+        y (ndarray): The measured data
+        Q (ndarray): Dynamic noise (defaults to [[0..0],..,[0..0]])
+        R (ndarray): Measure noise (defaults to [[0..0],..,[0..0]])
+
+    Returns:
+        X (ndarray): The system parameters
+
+    """
+    X = zeros(shape=(A.shape[0], 1))
+    P = eye(A.shape[0]) * 1000
+    zeros
+    Q = zeros(A.shape[0]) if Q is None else Q
+    R = zeros(A.shape[0]) if R is None else R
+    Id = eye(len(u))
     for t in range(len(u)):
+        # propagation
         X = dot(A, X) + dot(B, u[t])
         P = dot(A, dot(P, A.T)) + Q
         # update
-        num = dot(P, C.T)
-        K = num / (dot(C, num) + R)
-        X = X + dot(K, y[t] - dot(C, X))
-        P = dot((Id - dot(K, C)), P)
+        num = dot(P, H.T)
+        K = num / (dot(H, num) + R)
+        X = X + dot(K, y[t] - dot(H, X))
+        P = dot((Id - dot(K, H)), P)
     return X
