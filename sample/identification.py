@@ -22,18 +22,24 @@ class Structure(_Printable):
     pass
 
 
-ARX = Structure('arx')
-ARMAX = Structure('armax')
-SIMPLE_CAR = Structure('scar')
-
-
 class Stage(_Printable):
     """ Supported identification steps """
     pass
 
 
+class Noise(object):
+    """ Supported noise types """
+    pass
+
+
+ARX = Structure('arx')
+ARMAX = Structure('armax')
+SIMPLE_CAR = Structure('scar')
+
 TRAINING = Stage('train')
 VALIDATING = Stage('val')
+
+WHITE = Noise()
 
 
 def _get_io(data):
@@ -62,18 +68,18 @@ def _validate_id(u, y, order, delay):
     _valid_order(order)
 
 
-def _add_noise(output, sdev, noise='gauss'):
+def _add_noise(output, sdev, noise=WHITE):
     """ Add noise to the given output of the system
 
     Args:
         output (ndarray): The clean output
         stdev (float): The standard deviation of the noise
-        noise (str): The type of noise
+        noise (Noise): The type of noise. Defaults to WHITE
 
     Returns:
         y_noise (ndarray): The output of the system with added noise
     """
-    if noise == 'gauss':
+    if noise == WHITE:
         return output + normal(0, sdev, (output.size, 1))
     else:
         raise ValueError('Invalid type of noise: {}'.format(noise))
