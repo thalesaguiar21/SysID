@@ -20,6 +20,8 @@ TANK = SetAlias()
 IPCA_A = SetAlias()
 IPCA_B = SetAlias()
 IPCA_C = SetAlias()
+CAR_A = SetAlias()
+
 
 __left = 0.08
 __right = 0.98
@@ -33,14 +35,16 @@ tsets = {BBEAM: 'examples/training/ballbeam_train.dat',
          TANK: 'examples/training/tank1_train.dat',
          IPCA_A: 'examples/ipca1.dat',
          IPCA_B: 'examples/ipca2.dat',
-         IPCA_C: 'examples/ipca3.dat'}
+         IPCA_C: 'examples/ipca3.dat',
+         CAR_A: 'examples/car.dat'}
 
 vsets = {BBEAM: 'examples/validation/ballbeam_val.dat',
          DRYER: 'examples/validation/dryer_val.dat',
          TANK: 'examples/validation/tank1_val.dat',
          IPCA_A: 'examples/ipca1.dat',
          IPCA_B: 'examples/ipca2.dat',
-         IPCA_C: 'examples/ipca3.dat'}
+         IPCA_C: 'examples/ipca3.dat',
+         CAR_A: 'examples/car.dat'}
 
 
 def gen_history(fname, order, delay, inp, est=sid.ARX):
