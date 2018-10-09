@@ -27,6 +27,7 @@ __top = 0.95
 __ws = None
 __hs = 0.3
 
+
 tsets = {DataSet.BBEAM: 'examples/training/ballbeam_train.dat',
          DataSet.DRYER: 'examples/training/dryer_train.dat',
          DataSet.TANK: 'examples/training/tank1_train.dat',

@@ -29,6 +29,14 @@ class Stage(Enum):
         return '{0}'.format(self.value)
 
 
+class Noise(object):
+    """ Supported noise types """
+    pass
+
+
+WHITE = Noise()
+
+
 def _get_io(data):
     """ Separate the last columns as output and the rest as inputs """
     return data[:, :-1], data[:, -1:]
@@ -55,18 +63,18 @@ def _validate_id(u, y, order, delay):
     _valid_order(order)
 
 
-def _add_noise(output, sdev, noise='gauss'):
+def _add_noise(output, sdev, noise=WHITE):
     """ Add noise to the given output of the system
 
     Args:
         output (ndarray): The clean output
         stdev (float): The standard deviation of the noise
-        noise (str): The type of noise
+        noise (Noise): The type of noise. Defaults to WHITE
 
     Returns:
         y_noise (ndarray): The output of the system with added noise
     """
-    if noise == 'gauss':
+    if noise == WHITE:
         return output + normal(0, sdev, (output.size, 1))
     else:
         raise ValueError('Invalid type of noise: {}'.format(noise))
