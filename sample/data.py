@@ -47,6 +47,9 @@ def open_matrix(fname, sep='\t'):
         fname (str): A file name in examples folder
         sep (str): The file separator. Defaults to '\t'
 
+    Yield:
+        A float matrix with the file contents
+
     Returns:
         A matrix with the file data
     """
