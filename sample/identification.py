@@ -31,10 +31,7 @@ class Stage(Enum):
 
 class Noise(object):
     """ Supported noise types """
-    pass
-
-
-WHITE = Noise()
+    WHITE = 1
 
 
 def _get_io(data):
@@ -63,7 +60,7 @@ def _validate_id(u, y, order, delay):
     _valid_order(order)
 
 
-def _add_noise(output, sdev, noise=WHITE):
+def _add_noise(output, sdev, noise=Noise.WHITE):
     """ Add noise to the given output of the system
 
     Args:
@@ -74,7 +71,7 @@ def _add_noise(output, sdev, noise=WHITE):
     Returns:
         y_noise (ndarray): The output of the system with added noise
     """
-    if noise == WHITE:
+    if noise == Noise.WHITE:
         return output + normal(0, sdev, (output.size, 1))
     else:
         raise ValueError('Invalid type of noise: {}'.format(noise))
