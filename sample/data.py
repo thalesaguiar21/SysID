@@ -6,7 +6,7 @@ from sample.identification import Structure, Stage
 
 
 @contextmanager
-def rsfile(fname, stg=Stage.TRAINING, struc=Structure.ARX):
+def rsfile(fname, stg=Stage.TRAINING, struc=Structure.ARX, header=False):
     """ Create a file into results folder with the pattern:
     struc_fname_stage.rs
 
@@ -14,6 +14,7 @@ def rsfile(fname, stg=Stage.TRAINING, struc=Structure.ARX):
         fname (str): the file path
         stg (Stage): the identification stage. Defaults to TRAINING
         struc (Structure): the system structure. Defaults to ARX
+        header (bool): Write or not the header of file
 
     Yields:
         file: The file to write the results
@@ -32,7 +33,8 @@ def rsfile(fname, stg=Stage.TRAINING, struc=Structure.ARX):
     name = '_'.join([str(struc), fname, str(stg)])
     fullname = 'results/' + name + '.rs'
     file = open(fullname, 'w')
-    file.write(fileline.format(*header))
+    if header:
+        file.write(fileline.format(*header))
     try:
         yield file
     finally:
