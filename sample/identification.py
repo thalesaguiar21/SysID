@@ -2,6 +2,7 @@ from numpy import zeros, vstack, dot
 from numpy.random import normal
 from sample.metrics import stdev
 from sample.estimation import recursive_lse, mat_lse
+from enum import Enum
 # import pdb
 
 """ This module has some identiication functions developed during the class
@@ -9,31 +10,23 @@ of introduction to the Identification of Systems.
 """
 
 
-class _Printable(object):
-    def __init__(self, name):
-        self._name = '' if name is None else name
+class Structure(Enum):
+    """ Supported system structures """
+    ARX = 'arx'
+    ARMAX = 'armax'
+    SIMPLE_CAR = 'scar'
 
     def __str__(self):
-        return self._name
+        return '{0}'.format(self.value)
 
 
-class Structure(_Printable):
-    """ Supported system structures """
-    pass
-
-
-ARX = Structure('arx')
-ARMAX = Structure('armax')
-SIMPLE_CAR = Structure('scar')
-
-
-class Stage(_Printable):
+class Stage(Enum):
     """ Supported identification steps """
-    pass
+    TRAINING = 'train'
+    VALIDATING = 'val'
 
-
-TRAINING = Stage('train')
-VALIDATING = Stage('val')
+    def __str__(self):
+        return '{0}'.format(self.value)
 
 
 def _get_io(data):

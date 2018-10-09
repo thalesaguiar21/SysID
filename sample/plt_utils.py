@@ -3,23 +3,22 @@ import sample.identification as sid
 import sample.estimation as solv
 from numpy import matrix, append
 from sample.data import open_matrix
+from enum import Enum
 
 """ This module is composed of some plotting methods to create consistent
 plots along the produced work
 """
 
 
-class SetAlias(object):
+class DataSet(Enum):
     """ Available data sets """
-    pass
+    BBEAM = 1
+    DRYER = 2
+    TANK = 3
+    IPCA_A = 4
+    IPCA_B = 5
+    IPCA_C = 6
 
-
-BBEAM = SetAlias()
-DRYER = SetAlias()
-TANK = SetAlias()
-IPCA_A = SetAlias()
-IPCA_B = SetAlias()
-IPCA_C = SetAlias()
 
 __left = 0.08
 __right = 0.98
@@ -28,28 +27,28 @@ __top = 0.95
 __ws = None
 __hs = 0.3
 
-tsets = {BBEAM: 'examples/training/ballbeam_train.dat',
-         DRYER: 'examples/training/dryer_train.dat',
-         TANK: 'examples/training/tank1_train.dat',
-         IPCA_A: 'examples/ipca1.dat',
-         IPCA_B: 'examples/ipca2.dat',
-         IPCA_C: 'examples/ipca3.dat'}
+tsets = {DataSet.BBEAM: 'examples/training/ballbeam_train.dat',
+         DataSet.DRYER: 'examples/training/dryer_train.dat',
+         DataSet.TANK: 'examples/training/tank1_train.dat',
+         DataSet.IPCA_A: 'examples/ipca1.dat',
+         DataSet.IPCA_B: 'examples/ipca2.dat',
+         DataSet.IPCA_C: 'examples/ipca3.dat'}
 
-vsets = {BBEAM: 'examples/validation/ballbeam_val.dat',
-         DRYER: 'examples/validation/dryer_val.dat',
-         TANK: 'examples/validation/tank1_val.dat',
-         IPCA_A: 'examples/ipca1.dat',
-         IPCA_B: 'examples/ipca2.dat',
-         IPCA_C: 'examples/ipca3.dat'}
+vsets = {DataSet.BBEAM: 'examples/validation/ballbeam_val.dat',
+         DataSet.DRYER: 'examples/validation/dryer_val.dat',
+         DataSet.TANK: 'examples/validation/tank1_val.dat',
+         DataSet.IPCA_A: 'examples/ipca1.dat',
+         DataSet.IPCA_B: 'examples/ipca2.dat',
+         DataSet.IPCA_C: 'examples/ipca3.dat'}
 
 
-def gen_history(fname, order, delay, inp, est=sid.ARX):
+def gen_history(fname, order, delay, inp, est=sid.Structure.ARX):
     with open_matrix(vsets[fname]) as dat:
         phist = []
-        if est == sid.ARX:
+        if est == sid.Structure.ARX:
             A, B = sid.idarx(dat, order, delay)
             _, phist = solv.recursive_lse(A, B)
-        elif est == sid.ARMAX:
+        elif est == sid.Structure.ARMAX:
             _, _, _, phist = sid.idarmaxr(dat, order, delay)
         else:
             raise ValueError('Unknown structure: ' + est)

@@ -6,6 +6,11 @@ of introduction to the Identification of Systems.
 """
 
 
+_MIN_CONFIDENCE = 0
+_MAX_FORGET_FACTOR = 1.0
+_MIN_FORGET_FACTOR = 1e-4
+
+
 def __is_legal_param(coef, rs):
     """ Performs validations along the number of parameters """
     if coef is None or (coef is not None and coef.size == 0):
@@ -51,9 +56,9 @@ def recursive_lse(coef, rs, conf=1000, ffac=1.0, noise=None):
         theta : the estimated aprameters
         variation : paramaters gain over time
     """
-    conf = 0 if conf < 0 else conf
-    ffac = 1e-4 if ffac < 1e-4 else ffac
-    ffac = 1.0 if ffac > 1.0 else ffac
+    conf = _MIN_CONFIDENCE if conf < _MIN_CONFIDENCE else conf
+    ffac = _MIN_FORGET_FACTOR if ffac < _MIN_FORGET_FACTOR else ffac
+    ffac = _MAX_FORGET_FACTOR if ffac > _MAX_FORGET_FACTOR else ffac
     __is_column_vector(rs)
     __is_legal_param(coef, rs)
 

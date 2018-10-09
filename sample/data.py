@@ -2,13 +2,11 @@ from numpy import matrix
 from random import randint
 from math import floor
 from contextlib import contextmanager
-from sample.identification import ARX, ARMAX, SIMPLE_CAR
-from sample.identification import TRAINING, VALIDATING
-# import pdb
+from sample.identification import Structure, Stage
 
 
 @contextmanager
-def rsfile(fname, stg=TRAINING, struc=ARX):
+def rsfile(fname, stg=Stage.TRAINING, struc=Structure.ARX):
     """ Create a file into results folder with the pattern:
     struc_fname_stage.rs
 
@@ -24,9 +22,9 @@ def rsfile(fname, stg=TRAINING, struc=ARX):
         ValueError: if struc is not supported
         ValueError: if stg is not supported
     """
-    if struc not in [ARX, ARMAX, SIMPLE_CAR]:
+    if isinstance(struc, Structure):
         raise ValueError('Unknown structure: ' + struc)
-    if stg not in [TRAINING, VALIDATING]:
+    if isinstance(stg, Stage):
         raise ValueError('Unknown stage: ' + stg)
 
     fileline = '{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{}\n'
