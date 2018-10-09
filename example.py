@@ -3,6 +3,7 @@ from sample import estimation as solv
 from sample import identification as sid
 from sample import metrics as met
 from numpy import append, matrix, dot
+from math import pi, cos, sin
 import matplotlib.pyplot as plt
 import pdb
 
@@ -133,15 +134,3 @@ def plot_hist(fname, order, delay, est='arx', inp=[0, 1], smp=None):
 
     plt.subplots_adjust(0.08, 0.125, 0.98, 0.95, None, 0.3)
     plt.show()
-
-
-theta = matrix([0.9999999998278026, 1.2894267218843419e-10]).T
-
-# train_rec('ipca1', 5, 0, inp=[0, 1], ffac=.95)
-# train_rec('ipca2', 5, 0, inp=[0, 1, 2], ffac=.95)
-# train_rec('ipca3', 5, 0, inp=[0, 1, 2, 3], ffac=.95)
-# train_rec('ipca1', 5, 0, inp=[0, 1], est='armax', ffac=.95)
-# train_rec('ipca2', 5, 0, inp=[0, 1, 2], est='armax', ffac=.95)
-# train_rec('ipca3', 5, 0, inp=[0, 1, 2, 3], est='armax', ffac=.95)
-# train_rec('bbeam', 3, 3)
-# train('bbeam', 3, 3)

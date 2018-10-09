@@ -22,14 +22,14 @@ def rsfile(fname, stg=Stage.TRAINING, struc=Structure.ARX):
         ValueError: if struc is not supported
         ValueError: if stg is not supported
     """
-    if isinstance(struc, Structure):
-        raise ValueError('Unknown structure: ' + struc)
-    if isinstance(stg, Stage):
-        raise ValueError('Unknown stage: ' + stg)
+    if not isinstance(struc, Structure):
+        raise ValueError('Unknown structure: ' + str(struc))
+    if not isinstance(stg, Stage):
+        raise ValueError('Unknown stage: ' + str(stg))
 
     fileline = '{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{}\n'
     header = ['stdev', 'aic', 'fpe', 'order', 'delay', 'params']
-    name = '_'.join([struc, fname, stg])
+    name = '_'.join([str(struc), fname, str(stg)])
     fullname = 'results/' + name + '.rs'
     file = open(fullname, 'w')
     file.write(fileline.format(*header))

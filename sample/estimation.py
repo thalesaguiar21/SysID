@@ -1,5 +1,6 @@
-from numpy import eye, dot, zeros, ndarray, matrix
+from numpy import eye, dot, zeros, ndarray, matrix, append
 from numpy.linalg import inv
+import pdb
 
 """ This module has some estimation functions developed during the class
 of introduction to the Identification of Systems.
@@ -127,16 +128,16 @@ def kalman_filter(propag, entry, observation, u,
     if dyn_noise is None:
         dyn_noise = zeros(propag.shape[0])
 
-    identity = eye(QTD_SAMPLE)
+    # identity = eye(QTD_SAMPLE)
     states_history = []
     for t in range(QTD_SAMPLE):
         # propagation
-        states = dot(propag, states) + dot(entry, u[t])
-        covariances = dot(propag, dot(covariances, propag.T)) + measurenoise
+        states = dot(propag, states) + dot(entry, u)
+        covariances = dot(propag, dot(covariances, propag.T)) + dyn_noise
         # update
         numerator = dot(covariances, observation.T)
-        gain = dot(numerator, inv(dot(observation, numerator) + dyn_noise))
-        states = states + dot(gain, measures[t] - dot(observation, states))
-        states_history.append(states)
-        covariances = dot((identity - dot(gain, observation)), covariances)
+        gain = dot(numerator, inv(dot(observation, numerator) + measurenoise))
+        states = states + dot(gain, measures[t].T - dot(observation, states))
+        states_history.append(append([], states.T))
+        covariances = covariances - dot(dot(gain, observation), covariances)
     return states_history
