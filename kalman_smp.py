@@ -56,8 +56,8 @@ def plot_xtime():
         x_pos = results[:, 0]
         xmeasure = measures[:, 1]
         plt.figure()
-        plt.plot(xmeasure, 'ro', markersize=4, fillstyle='none')
-        plt.plot(x_pos, 'b-.', linewidth=1.5)
+        plt.plot(xmeasure, 'bo', markersize=4, fillstyle='none')
+        plt.plot(x_pos, 'r-.', linewidth=1.5)
         plt.grid(True)
         plt.xticks(arange(0, 110, step=10))
         plt.subplots_adjust(0.08, 0.125, 0.98, 0.95, None, 0.3)
