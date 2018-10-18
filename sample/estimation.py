@@ -103,8 +103,8 @@ def mat_lse(coef, rs):
     return theta, res, ypred
 
 
-def kalman_filter(propag, entry, observation, u,
-                  measures, measurenoise=None, dyn_noise=None):
+def discrete_kalman(propag, entry, observation, u,
+                    measures, measurenoise=None, dyn_noise=None):
     """ Compute the Kalman filter
 
     Args:
@@ -119,17 +119,19 @@ def kalman_filter(propag, entry, observation, u,
         The system parameters through time
 
     """
-    INITIAL_COVARIANCE = 1000
+    INITIAL_COVARIANCE = 0.1
     QTD_SAMPLE = len(measures)
-    states = zeros(shape=(propag.shape[0], 1))
-    covariances = eye(propag.shape[0]) * INITIAL_COVARIANCE
-    if measurenoise is None:
-        measurenoise = zeros(propag.shape[0])
-    if dyn_noise is None:
-        dyn_noise = zeros(propag.shape[0])
+    QTD_STATE_VARIABLES = propag.shape[0]
+    states = zeros(shape=(QTD_STATE_VARIABLES, 1))
+    covariances = eye(QTD_STATE_VARIABLES) * INITIAL_COVARIANCE
 
-    # identity = eye(QTD_SAMPLE)
+    if measurenoise is None:
+        measurenoise = zeros(QTD_STATE_VARIABLES)
+    if dyn_noise is None:
+        dyn_noise = zeros(QTD_STATE_VARIABLES)
+
     states_history = []
+    covariances_hist = []
     for t in range(QTD_SAMPLE):
         # propagation
         states = dot(propag, states) + dot(entry, u)
@@ -140,4 +142,7 @@ def kalman_filter(propag, entry, observation, u,
         states = states + dot(gain, measures[t].T - dot(observation, states))
         states_history.append(append([], states.T))
         covariances = covariances - dot(dot(gain, observation), covariances)
-    return states_history
+        covariances_hist.append(
+            [covariances[i, i] for i in range(QTD_STATE_VARIABLES)]
+        )
+    return states_history, covariances_hist

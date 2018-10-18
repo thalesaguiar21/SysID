@@ -3,6 +3,11 @@ from random import randint
 from math import floor
 from contextlib import contextmanager
 from sample.identification import Structure, Stage
+import pdb
+
+
+FOLDER = 0
+FILE = 1
 
 
 @contextmanager
@@ -29,12 +34,13 @@ def rsfile(fname, stg=Stage.TRAINING, struc=Structure.ARX, header=False):
         raise ValueError('Unknown stage: ' + str(stg))
 
     fileline = '{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{}\n'
-    header = ['stdev', 'aic', 'fpe', 'order', 'delay', 'params']
-    name = '_'.join([str(struc), fname, str(stg)])
-    fullname = 'results/' + name + '.rs'
+    headerstr = ['stdev', 'aic', 'fpe', 'order', 'delay', 'params']
+    fname = fname.split('/')
+    name = '_'.join([str(struc), fname[FILE], str(stg)])
+    fullname = 'results/{}/{}.rs'.format(fname[FOLDER], name)
     file = open(fullname, 'w')
     if header:
-        file.write(fileline.format(*header))
+        file.write(fileline.format(*headerstr))
     try:
         yield file
     finally:

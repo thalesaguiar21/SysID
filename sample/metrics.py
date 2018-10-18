@@ -9,6 +9,11 @@ def stdev(samples):
     return sqrt(sum(variances) / len(samples))
 
 
+def euclidean_dist(estimated, expected):
+    dists = estimated - expected
+    return [sqrt(x + y) for x, y in zip(dists[:, 0], dists[:, 1])]
+
+
 def squared(samples):
     """ Compute the sum of the modulo of the samples """
     sqr_samples = dot(samples.T, samples)
