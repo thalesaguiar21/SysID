@@ -103,46 +103,77 @@ def mat_lse(coef, rs):
     return theta, res, ypred
 
 
-def discrete_kalman(propag, entry, observation, u,
-                    measures, measurenoise=None, dyn_noise=None):
-    """ Compute the Kalman filter
-
-    Args:
-        propag (ndarray): The propagation matrix
-        entry (ndarray): The entry matrix
-        u (ndarray): The system's exogenous inputs
-        measures (ndarray): The measured data
-        measurenoise (ndarray): Measure noise (defaults to [[0..0],..,[0..0]])
-        dyn_noise (ndarray): Dynamic noise (defaults to [[0..0],..,[0..0]])
-
-    Returns:
-        The system parameters through time
-
+class KalmanFilter(object):
     """
-    INITIAL_COVARIANCE = 0.1
-    QTD_SAMPLE = len(measures)
-    QTD_STATE_VARIABLES = propag.shape[0]
-    states = zeros(shape=(QTD_STATE_VARIABLES, 1))
-    covariances = eye(QTD_STATE_VARIABLES) * INITIAL_COVARIANCE
+    """
 
-    if measurenoise is None:
-        measurenoise = zeros(QTD_STATE_VARIABLES)
-    if dyn_noise is None:
-        dyn_noise = zeros(QTD_STATE_VARIABLES)
+    def __init__(self, propag, entry, observation, icovariance=0.1):
+        """ Initialize the prediction model for Kalman Filter
 
-    states_history = []
-    covariances_hist = []
-    for t in range(QTD_SAMPLE):
-        # propagation
-        states = dot(propag, states) + dot(entry, u)
-        covariances = dot(propag, dot(covariances, propag.T)) + dyn_noise
-        # update
-        numerator = dot(covariances, observation.T)
-        gain = dot(numerator, inv(dot(observation, numerator) + measurenoise))
-        states = states + dot(gain, measures[t].T - dot(observation, states))
-        states_history.append(append([], states.T))
-        covariances = covariances - dot(dot(gain, observation), covariances)
-        covariances_hist.append(
-            [covariances[i, i] for i in range(QTD_STATE_VARIABLES)]
-        )
-    return states_history, covariances_hist
+        Args:
+            propag (ndarray): The propagation matrix
+            entry (ndarray): The entry matrix
+            observation (ndarray): The observation matrix
+            icovariance (float, optional): The initial states covariances. Defa
+                ults to 0.1.
+        """
+        self._statehist = []
+        self._covariancehist = []
+        self._QTD_STATE = propag.shape[0]
+        self.propag = propag
+        self.entry = entry
+        self.observation = observation
+        self.states = zeros(self._QTD_STATE)
+        self.covariances = eye(self._QTD_STATE) * icovariance
+
+    def filtrate(self, measures, inputs, dyn_noise=None, measurenoise=None):
+        """ Filtrate the measures with the given prediction model
+
+        Args:
+            measures (ndarray): The sensors measurements
+            inputs (ndarray): The exogenous inputs
+            dyn_noise (ndarray, optional): The dynamic noise matrix. Defaults
+                to M = [0] with order NxN, where N is the number of states.
+            measurenoise (ndarray, optional): The measurement noise matrix. Def
+                aults to M = [0] with order NxN, where N is the number of state
+                s.
+
+        Returns:
+            The states and covariances history
+        """
+        measurenoise = self._init_noise(measurenoise)
+        dyn_noise = self._init_noise(dyn_noise)
+        self._clean_history()
+
+        for t in range(len(measures)):
+            self._propagate(dyn_noise, inputs)
+            self._adjust(measurenoise, measures[t])
+            self._append_estimation()
+        return self._statehist, self._covariancehist
+
+    def _clean_history(self):
+        self._statehist = []
+        self._covariancehist = []
+
+    def _init_noise(self, noise):
+        if noise is None:
+            return zeros(self._QTD_STATE)
+
+    def _propagate(self, dyn_noise, inputs):
+        self.states = dot(self.propag, self.states) + dot(self.entry, inputs)
+        self.covariances = dot(
+            self.propag, dot(self.covariances, self.propag.T))
+        self.covariances = self.covariances + dyn_noise
+
+    def _adjust(self, measurenoise, measures):
+        """ States and covariances are changed inside """
+        term = dot(self.covariances, self.observation.T)
+        gain = dot(term, inv(dot(self.observation, term) + measurenoise))
+        self.states += dot(
+            gain, measures.T - dot(self.observation, self.states))
+        self.covariances -= dot(dot(gain, self.observation), self.covariances)
+
+    def _append_estimation(self, state, covariance):
+        self._statehist.append(append([], state.T))
+        for i in range(self._QTD_STATE):
+            self._covariancehist.append(covariance[i, i])
