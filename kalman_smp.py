@@ -1,45 +1,58 @@
 from math import cos, sin, pi
-from sample.estimation import discrete_kalman
+from sample.estimation import stdkalman
 from sample.data import open_matrix, rsfile
 from sample.plt_utils import DataSet, tsets
-from sample.metrics import aic, stdev
 from sample.identification import Structure, Stage
-from numpy import matrix, dot, arange, append
+from numpy import matrix, dot, arange, savetxt
 import matplotlib.pyplot as plt
-import pdb
+# import pdb
 
 Px = 0
 Py = 1
 
 
-def estim():
+def estimate_simple_car():
     with open_matrix(tsets[DataSet.SIMPLE_CAR], ' ') as data:
 
         print('Initializing...')
-        ANGLE = 32 * (pi / 180)
-        DELTA_T = 1
-        prop = matrix([[1, DELTA_T], [0, 1]])
-        entry = matrix([[0, 0], [0, 0]])
-        u = matrix([[0], [0]])
-        obs_matrix = matrix([[cos(ANGLE), 0], [sin(ANGLE), 0]])
-        dyn_noise = matrix([[0.5 ** 2, 0], [0, 1.5 ** 2]])
-        meas_noise = matrix([[5 ** 2, 0], [0, 5 ** 2]])
-
+        _initialise_simple_model()
         print('Computing Kalman...')
-        states, errors = discrete_kalman(prop, entry, obs_matrix, u,
-                                         data[:, 1:], meas_noise, dyn_noise)
-        pdb.set_trace()
-        states = matrix(states)
-        estimated_positions = dot(obs_matrix, states.T)
-        _save_dots(estimated_positions, errors, 'car/car{}{}'.format(0, 0))
+        estimated_positions = _filtrate_car(data[:, 1], matrix([[0], [0]]))
+        savetxt('results/simple_car{}{}'.format(0, 0), estimated_positions.T)
         print('Finished!')
 
 
-def _save_dots(estimation, errors, fname):
+def estimate_bidirectional_car():
+    print('Initialising...')
+    _initialise_bidirectional_model()
+    print('Filtrating...')
+    print('Done!')
+
+
+def _initialise_bidirectional_model():
+    pass
+
+
+def _initialise_simple_model():
+    ANGLE = 32 * (pi / 180)
+    DELTA_T = 1
+    stdkalman.propag = matrix([[1, DELTA_T], [0, 1]])
+    stdkalman.observation = matrix([[cos(ANGLE), 0], [sin(ANGLE), 0]])
+    stdkalman.entry = matrix([[0, 0], [0, 0]])
+    stdkalman.dyn_noise = matrix([[0.5 ** 2, 0], [0, 1.5 ** 2]])
+    stdkalman.measurenoise = matrix([[5 ** 2, 0], [0, 5 ** 2]])
+
+
+def _filtrate_car(measures, inputs):
+    states, errors = stdkalman.filtrate(measures, inputs)
+    states = matrix(states)
+    return dot(stdkalman.observation, states.T)
+
+
+def _save_dots(estimation, fname):
+
     with rsfile(fname, Stage.VALIDATING, Structure.SIMPLE_CAR, False) as rs:
-        for position, error in zip(estimation.T, errors):
-            rs.write('{}\t{}'.format(position[0, Px], position[0, Py]))
-            rs.write('\t{}\t{}\n'.format(*error))
+        estimation.T.tofile(rs, '\t')
 
 
 def plot():
@@ -66,9 +79,9 @@ def plot_time():
         x_pos00 = r00[:, Px]
         y_pos00 = r00[:, Py]
         x_pos01 = r01[:, Px]
-        y_pos01 = r01[:, Py]
+        # y_pos01 = r01[:, Py]
         x_pos10 = r10[:, Px]
-        y_pos10 = r10[:, Py]
+        # y_pos10 = r10[:, Py]
 
         xmeasure = measures[:, 1]
         ymeasure = measures[:, 2]
@@ -96,6 +109,6 @@ def plot_time():
         plt.show()
 
 
-estim()
+estimate_simple_car()
 # plot()
 # plot_time()

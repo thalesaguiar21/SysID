@@ -1,9 +1,10 @@
 from numpy import zeros, vstack, dot
 from numpy.random import normal
 from sample.metrics import stdev
-from sample.estimation import recursive_lse, mat_lse
+from sample.estimation import lse
+from sample.estimation.utils import calc_residues
 from enum import Enum
-# import pdb
+import pdb
 
 """ This module has some identiication functions developed during the class
 of introduction to the Identification of Systems.
@@ -92,6 +93,7 @@ def idarx(data, order, delay):
     _valid_order(order)
     _valid_delay(delay)
     inp, out = _get_io(data)
+    # pdb.set_trace()
     min_points = 3 * order * delay
     n_inps = inp.shape[1]
     if out.size < min_points:
@@ -138,7 +140,7 @@ def _idarmax_p(u, y, order, delay, e):
 def _initarmax(dat, order, delay):
     """ Auxiliary function to initialize some variables for ARMAX id """
     A, B = idarx(dat, order, delay)
-    theta, _ = recursive_lse(A, B, 1000, 1.0)
+    theta = lse.recursive(A, B)
     ypred = dot(A, theta)
     res = B - ypred
     sdev = stdev(res)
@@ -164,7 +166,9 @@ def idarmax(dat, order, delay):
     while abs(oldsdev - sdev) / sdev > 0.01 and N < 30:
         e_estim = vstack((zeros((order + delay, 1)), res))
         A, B = _idarmax_p(inp, out, order, delay, e_estim)
-        theta, res, ypred = mat_lse(A, B)
+        theta = lse.matricial(A, B)
+        res = calc_residues(A, B, theta)
+        ypred = dot(A, theta)
         oldsdev = sdev
         sdev = stdev(res)
         N = N + 1
@@ -187,13 +191,15 @@ def idarmaxr(dat, order, delay, conf=1000, forg=1.0):
         ypred (ndarray): The predicted outputs
         phist (2D array): The paramater variation along samples
     """
+    lse.initial_confidence = conf
+    lse.forget_rate = forg
     N = 0
     u, y = _get_io(dat)
     res, sdev, oldsdev = _initarmax(dat, order, delay)
     while abs(oldsdev - sdev) / sdev > 0.01 and N < 30:
         e_estim = vstack((zeros((order + delay, 1)), res))
         A, B = _idarmax_p(u, y, order, delay, e_estim)
-        theta, phist = recursive_lse(A, B, conf, forg)
+        theta, phist = lse.recursive(A, B)
         ypred = dot(A, theta)
         res = B - ypred
         oldsdev = sdev
