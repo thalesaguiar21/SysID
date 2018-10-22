@@ -1,4 +1,4 @@
-from numpy import zeros, dot, eye, append
+from numpy import zeros, dot, eye, append, transpose, diag
 from numpy.linalg import inv
 # import pdb
 
@@ -9,8 +9,9 @@ observation = None
 noise_update_rate = 10
 _statehist = []
 _covariancehist = []
-_dyn_noise = None
-_measurenoise = None
+_dyn_noise = diag([0.25, 2.25, 6.25, 12.25, 20.25])
+_measurenoise = diag([25, 25])
+_QTD_STATES = 0
 
 
 def filtrate(measures, inputs):
@@ -24,48 +25,51 @@ def filtrate(measures, inputs):
     Returns:
         The states and covariances through time
     """
-    states = zeros((propag.shape[0], 1))
-    covariances = eye(propag.shape[0]) * initital_covariance
+    _QTD_STATES = propag.shape[0]
+    states = zeros((_QTD_STATES, 1))
+    covariances = eye(_QTD_STATES) * initital_covariance
     for t in range(len(measures)):
-        states, covariances = __propagate(states, covariances, inputs)
-        states, covariances = __adjust(states, covariances, measures[t])
-        if is_update_time(t):
-            _dyn_noise, _measurenoise = __update_noises(states)
-        __append_history(states, covariances)
+        states, covariances = _propagate(states, covariances, inputs)
+        states, covariances = _adjust(states, covariances, measures[t])
+        _append_history(states, covariances)
     return _statehist, _covariancehist
 
 
-def __propagate(states, covariances, inputs):
+def _propagate(states, covariances, inputs):
     """ Propagate the states and covariances to the next instant in time """
     states = dot(propag, states) + dot(entry, inputs)
     covariances = dot(propag, dot(covariances, propag.T)) + _dyn_noise
     return states, covariances
 
 
-def __adjust(states, covariances, measures):
+def _adjust(states, covariances, measures):
     """ Adjust the predictions with the measurementes """
     term = dot(covariances, observation.T)
     gain = dot(term, inv(dot(observation, term) + _measurenoise))
-    states = states + dot(gain, measures.T - dot(observation, states))
+    states = states + dot(
+        gain, transpose([measures]) - dot(observation, states)
+    )
     covariances = covariances - dot(dot(gain, observation), covariances)
     return states, covariances
 
 
-def is_update_time(time, update_rate):
-    return time % update_rate == 0
+def _is_update_time(time):
+    return time % noise_update_rate == 0
 
 
-def __update_noises(state):
+def _update_noises(state):
     """ Update the dynamic and measurement noises with respect to the current
     and previous states.
     """
-    estimated_states = dot(observation, state)
-    dynamic = _statehist[-1] - estimated_states
-    measure = dot(observation, _statehist[-1]) - estimated_states
+    dynamic = state - dot(propag, transpose([_statehist[-1]]))
+    dynamic = diag(dynamic.reshape(len(dynamic)))
+    measure = dot(observation, state) - dot(observation, _statehist[-1])
+    # dynamic += _dyn_noise
+    # measure += _measurenoise
     return dynamic, measure
 
 
-def __append_history(states, covariances):
+def _append_history(states, covariances):
     """ Save the prediction and covariances for the states at an instante """
     QTD_STATES = states.shape[0]
     _statehist.append(append([], states.T))

@@ -1,9 +1,10 @@
-from math import cos, sin, pi
-from sample.estimation import stdkalman
+from math import cos, sin, pi, atan
+from sample.estimation.lse import clamp
+from sample.estimation import kf, ekf
 from sample.data import open_matrix, rsfile
 from sample.plt_utils import DataSet, tsets
 from sample.identification import Structure, Stage
-from numpy import matrix, dot, arange, savetxt
+from numpy import matrix, dot, savetxt, zeros, loadtxt, array
 import matplotlib.pyplot as plt
 # import pdb
 
@@ -17,36 +18,62 @@ def estimate_simple_car():
         print('Initializing...')
         _initialise_simple_model()
         print('Computing Kalman...')
-        estimated_positions = _filtrate_car(data[:, 1], matrix([[0], [0]]))
+        estimated_positions = _filtrate_kf_car(data[:, 1:], matrix([[0], [0]]))
         savetxt('results/simple_car{}{}'.format(0, 0), estimated_positions.T)
         print('Finished!')
 
 
 def estimate_bidirectional_car():
+    data = loadtxt(tsets[DataSet.BIDIRECTIONAL_CAR], usecols=(1, 2))
     print('Initialising...')
     _initialise_bidirectional_model()
     print('Filtrating...')
+    estimated_positions = _filtrate_ekf_car(data, zeros((5, 1)))
+    savetxt('results/bid_car_rs.txt', estimated_positions.T)
     print('Done!')
 
 
 def _initialise_bidirectional_model():
-    pass
+    ANGLE = 50 * (pi / 180)
+    DELTA_T = 0.1
+    SPEED = __speed(DELTA_T, 0.7)
+    # states = [X, Y, Theta, Vs, As]
+    ekf.propag = array(
+        [[1, 0, DELTA_T * cos(ANGLE), -DELTA_T * SPEED * sin(ANGLE), 0],  # X
+         [0, 1, DELTA_T * sin(ANGLE), DELTA_T * SPEED * cos(ANGLE), 0],  # Y
+         [0, 0, 1, 0, DELTA_T],  # Theta
+         [0, 0, 0, SPEED, 0],  # Vetorial speed
+         [0, 0, 0, 0, ANGLE]]  # Angular speed
+    )
+    ekf.observation = array([[1, 0, 0, 0, 0],
+                             [0, 1, 0, 0, 0]])
+    ekf.entry = zeros((5, 5))
+    ekf.noise_update_rate = 1
 
 
 def _initialise_simple_model():
     ANGLE = 32 * (pi / 180)
     DELTA_T = 1
-    stdkalman.propag = matrix([[1, DELTA_T], [0, 1]])
-    stdkalman.observation = matrix([[cos(ANGLE), 0], [sin(ANGLE), 0]])
-    stdkalman.entry = matrix([[0, 0], [0, 0]])
-    stdkalman.dyn_noise = matrix([[0.5 ** 2, 0], [0, 1.5 ** 2]])
-    stdkalman.measurenoise = matrix([[5 ** 2, 0], [0, 5 ** 2]])
+    kf.propag = matrix([[1, DELTA_T], [0, 1]])
+    kf.observation = matrix([[cos(ANGLE), 0], [sin(ANGLE), 0]])
+    kf.entry = matrix([[0, 0], [0, 0]])
+    kf.dyn_noise = matrix([[0.5 ** 2, 0], [0, 1.5 ** 2]])
+    kf.measurenoise = matrix([[5 ** 2, 0], [0, 5 ** 2]])
 
 
-def _filtrate_car(measures, inputs):
-    states, errors = stdkalman.filtrate(measures, inputs)
+def _filtrate_kf_car(measures, inputs):
+    states, errors = kf.filtrate(measures, inputs)
     states = matrix(states)
-    return dot(stdkalman.observation, states.T)
+    return dot(kf.observation, states.T)
+
+
+def _filtrate_ekf_car(measures, inputs):
+    states, errors = ekf.filtrate(measures, inputs)
+    states = matrix(states)
+    observation = array([[1, 0, 0, 0, 0],
+                         [0, 1, 0, 0, 0],
+                         [0, 0, 1, 0, 0]])
+    return dot(observation, states.T)
 
 
 def _save_dots(estimation, fname):
@@ -55,60 +82,66 @@ def _save_dots(estimation, fname):
         estimation.T.tofile(rs, '\t')
 
 
-def plot():
-    with open_matrix('results/car/scar_car00_val.rs', ' ') as r00, \
-            open_matrix('examples/car.dat', ' ') as measures:
-        x_pos00 = r00[:, Px]
-        y_pos00 = r00[:, Py]
+def plot_movement():
+    measures = loadtxt(tsets[DataSet.BIDIRECTIONAL_CAR], usecols=(1, 2))
+    estimation = loadtxt('results/bid_car_rs.txt')
+    xestim = estimation[:, Px]
+    yestim = estimation[:, Py]
 
-        xmeasure = measures[:, 1]
-        ymeasure = measures[:, 2]
+    xmeasure = measures[:, Px]
+    ymeasure = measures[:, Py]
 
-        plt.figure()
-        plt.plot(xmeasure, ymeasure, 'bo', markersize=2)
-        plt.plot(x_pos00, y_pos00, 'r:', linewidth=1.5)
-        plt.subplots_adjust(0.08, 0.125, 0.98, 0.95, None, 0.3)
-        plt.show()
+    plt.figure()
+    plt.plot(xmeasure, ymeasure, 'bo', markersize=2)
+    plt.plot(xestim, yestim, 'r-', linewidth=1.5)
+    plt.subplots_adjust(0.08, 0.125, 0.98, 0.95, None, 0.3)
+    plt.show()
 
 
 def plot_time():
-    with open_matrix('results/car/scar_car00_val.rs', ' ') as r00, \
-            open_matrix('results/car/scar_car01_val.rs', ' ') as r01, \
-            open_matrix('results/car/scar_car10_val.rs', ' ') as r10, \
-            open_matrix('examples/car.dat', ' ') as measures:
-        x_pos00 = r00[:, Px]
-        y_pos00 = r00[:, Py]
-        x_pos01 = r01[:, Px]
-        # y_pos01 = r01[:, Py]
-        x_pos10 = r10[:, Px]
-        # y_pos10 = r10[:, Py]
+    measures = loadtxt(tsets[DataSet.BIDIRECTIONAL_CAR], usecols=(1, 2))
+    estimation = loadtxt('results/bid_car_rs.txt')
+    xestim = estimation[:, Px]
+    yestim = estimation[:, Py]
+    xmeasure = measures[:, Px]
+    ymeasure = measures[:, Py]
 
-        xmeasure = measures[:, 1]
-        ymeasure = measures[:, 2]
+    plt.figure()
+    plt.subplot(211)
+    plt.ylabel('Posição em X')
+    plt.plot(xmeasure, 'c-.', linewidth=1)
+    plt.plot(xestim, 'r-', linewidth=1)
 
-        plt.figure()
-        plt.subplot(211)
-        plt.plot(xmeasure, 'bo', markersize=4, fillstyle='none')
-        plt.plot(x_pos00, 'r-.', linewidth=1)
-        plt.plot(x_pos01, 'm-.', linewidth=1)
-        plt.plot(x_pos10, 'k-.', linewidth=1)
-        plt.grid(True)
-        plt.xlabel('Tempo (s)')
-        plt.ylabel('Posição em x')
-        plt.xticks(arange(0, 110, step=10))
-
-        plt.subplot(212)
-        plt.plot(ymeasure, 'go', markersize=4, fillstyle='none')
-        plt.plot(y_pos00, 'C1-.', linewidth=1.5)
-        plt.grid(True)
-        plt.xlabel('Tempo (s)')
-        plt.ylabel('Posição em y')
-        plt.xticks(arange(0, 110, step=10))
-
-        plt.subplots_adjust(0.08, 0.125, 0.98, 0.95, None, 0.3)
-        plt.show()
+    plt.subplot(212)
+    plt.plot(ymeasure, 'c-.', linewidth=1)
+    plt.plot(yestim, 'r-', linewidth=1)
+    plt.ylabel('Posição em Y')
+    plt.xlabel('Tempo')
+    plt.subplots_adjust(0.08, 0.125, 0.98, 0.95, None, 0.3)
+    plt.show()
 
 
-estimate_simple_car()
-# plot()
+def plot_angle():
+    estimation = loadtxt('results/bid_car_rs.txt')
+    theta = estimation[:, 2]
+
+    plt.plot(theta)
+    plt.show()
+
+
+def __speed(time_in_sec, fraction=1):
+    """ Compute the maximum velocity based on Porsche 911 (997) Turbo S
+
+    Args:
+        time_in_sec (float): The time variation
+        fraction (float): How fast the car is compared to the Porsche
+    """
+    fraction = clamp(fraction, min_=0, max_=1.0)
+    return 100 * time_in_sec / 2.7 * fraction
+
+
+# estimate_simple_car()
+# estimate_bidirectional_car()
 # plot_time()
+# plot_movement()
+plot_angle()

@@ -26,20 +26,20 @@ def filtrate(measures, inputs):
     states = zeros((propag.shape[0], 1))
     covariances = eye(propag.shape[0]) * initital_covariance
     for t in range(len(measures)):
-        states, covariances = __propagate(states, covariances, inputs)
-        states, covariances = __adjust(states, covariances, measures[t])
-        __append_history(states, covariances)
+        states, covariances = _propagate(states, covariances, inputs)
+        states, covariances = _adjust(states, covariances, measures[t])
+        _append_history(states, covariances)
     return statehist, covariancehist
 
 
-def __propagate(states, covariances, inputs):
+def _propagate(states, covariances, inputs):
     """ Propagate the states and covariances to the next instant in time """
     states = dot(propag, states) + dot(entry, inputs)
     covariances = dot(propag, dot(covariances, propag.T)) + dyn_noise
     return states, covariances
 
 
-def __adjust(states, covariances, measures):
+def _adjust(states, covariances, measures):
     """ Adjust the predictions with the measurementes """
     term = dot(covariances, observation.T)
     gain = dot(term, inv(dot(observation, term) + measurenoise))
@@ -48,7 +48,7 @@ def __adjust(states, covariances, measures):
     return states, covariances
 
 
-def __append_history(states, covariances):
+def _append_history(states, covariances):
     """ Save the prediction and covariances for the states at an instante """
     QTD_STATES = states.shape[0]
     statehist.append(append([], states.T))

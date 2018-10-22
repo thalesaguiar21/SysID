@@ -23,7 +23,7 @@ def recursive(psi, y):
     Returns:
         An estimation of parameters theta, that psi * theta ~ y
     """
-    __validate_args(psi, y)
+    _validate_args(psi, y)
     QTD_VARIABLES = psi.shape[1]
     forget_rate, initial_confidence = _clamp_rates()
     cov = eye(QTD_VARIABLES) * initial_confidence
@@ -57,12 +57,12 @@ def _clamp_rates():
     return clampedforget, clampedconf
 
 
-def __validate_args(coef, rs):
-    __is_legal_param(coef, rs)
-    __is_column_vector(rs)
+def _validate_args(coef, rs):
+    _is_legal_param(coef, rs)
+    _is_column_vector(rs)
 
 
-def __is_legal_param(coef, rs):
+def _is_legal_param(coef, rs):
     """ Performs validations along the number of parameters """
     if coef is None or (coef is not None and coef.size == 0):
         raise ValueError('Coefficient matrix is None or empty!')
@@ -75,7 +75,7 @@ def __is_legal_param(coef, rs):
             coef.shape[1], rs.shape[0]))
 
 
-def __is_column_vector(rs):
+def _is_column_vector(rs):
     """ Check whether the given input is a row matrix (1, )
 
     Args:

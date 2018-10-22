@@ -19,6 +19,7 @@ class DataSet(Enum):
     IPCA_B = 5
     IPCA_C = 6
     SIMPLE_CAR = 7
+    BIDIRECTIONAL_CAR = 8
 
 
 __left = 0.08
@@ -35,7 +36,8 @@ tsets = {DataSet.BBEAM: 'examples/training/ballbeam_train.dat',
          DataSet.IPCA_A: 'examples/ipca1.dat',
          DataSet.IPCA_B: 'examples/ipca2.dat',
          DataSet.IPCA_C: 'examples/ipca3.dat',
-         DataSet.SIMPLE_CAR: 'examples/car.dat'}
+         DataSet.SIMPLE_CAR: 'examples/car.dat',
+         DataSet.BIDIRECTIONAL_CAR: 'examples/bid_car.txt'}
 
 vsets = {DataSet.BBEAM: 'examples/validation/ballbeam_val.dat',
          DataSet.DRYER: 'examples/validation/dryer_val.dat',
@@ -43,7 +45,8 @@ vsets = {DataSet.BBEAM: 'examples/validation/ballbeam_val.dat',
          DataSet.IPCA_A: 'examples/ipca1.dat',
          DataSet.IPCA_B: 'examples/ipca2.dat',
          DataSet.IPCA_C: 'examples/ipca3.dat',
-         DataSet.SIMPLE_CAR: 'examples/car.dat'}
+         DataSet.SIMPLE_CAR: 'examples/car.dat',
+         DataSet.BIDIRECTIONAL_CAR: 'examples/bid_car.txt'}
 
 
 def gen_history(fname, order, delay, inp, est=sid.Structure.ARX):
