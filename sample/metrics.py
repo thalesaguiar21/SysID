@@ -2,11 +2,16 @@ from math import sqrt, log
 from numpy import dot
 
 
+def variance(samples):
+    n_samples = len(samples)
+    mean = sum(samples) / n_samples
+    variance = sum([(s - mean) ** 2 for s in samples]) / n_samples
+    return variance
+
+
 def stdev(samples):
     """ Compute the standard deviation of the given samples """
-    mean = sum(samples) / samples.size
-    variances = [(s - mean) ** 2 for s in samples]
-    return sqrt(sum(variances) / len(samples))
+    return sqrt(variance(samples))
 
 
 def euclidean_dist(estimated, expected):
