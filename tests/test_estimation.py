@@ -21,71 +21,39 @@ class TestEstimation(unittest.TestCase):
 
     def test_none_rs(self):
         self.rs = None
-        try:
-            params = est.lse.recursive(self.coef, self.rs)
-            self.fail('System estimated with None rs matrix')
-        except ValueError:
-            pass
+        self.try_solve_recursive('System estimated with None rs matrix')
 
     def test_empty_rs(self):
         self.rs = np.array(' ')
-        try:
-            params = est.lse.recursive(self.coef, self.rs)
-            self.fail('System estimated with empty rs matrix')
-        except ValueError:
-            pass
+        self.try_solve_recursive('System estimated with empty rs matrix')
 
     def test_none_coef(self):
         self.coef = None
-        try:
-            params = est.lse.recursive(self.coef, self.rs)
-            self.fail('System estimated with None coefficient matrix')
-        except ValueError:
-            pass
+        self.try_solve_recursive('System estimated with None coef matrix')
 
     def test_empty_coef(self):
         self.coef = np.array('')
-        try:
-            params = est.lse.recursive(self.coef, self.rs)
-            self.fail('System estimated with empty coefficient matrix')
-        except ValueError:
-            pass
+        self.try_solve_recursive('System estimated with empty coef matrix')
 
     def test_indetermined_sys(self):
         self.coef = np.array('1 2 3; 1 2 3')
         self.rs = np.array('1; 2')
-        try:
-            params = est.lse.recursive(self.coef, self.rs)
-            self.fail('Tried to solve an indetermined system!')
-        except ValueError:
-            pass
+        self.try_solve_recursive('Tried to solve an indetermined system!')
 
     def test_rs_small(self):
         self.coef = np.array('1 2 3; 1 2 3')
         self.rs = np.array('1')
-        try:
-            params = est.lse.recursive(self.coef, self.rs)
-            self.fail('Tried to solve with insuficient result values!')
-        except ValueError:
-            pass
+        self.try_and_solve('Tried to solve with insuficient result values!')
 
     def test_rs_larger(self):
         self.coef = np.array('1 2 3; 1 2 3')
         self.rs = np.array('1; 2; 3')
-        try:
-            params = est.lse.recursive(self.coef, self.rs)
-            self.fail('Tried to solve with too many result values!')
-        except ValueError:
-            pass
+        self.try_solve_recursive('Tried to solve with too many result values!')
 
     def test_column_rs(self):
         self.coef = np.array('1 2 3; 1 2 3')
         self.rs = np.array('1; 2')
-        try:
-            params = est.lse.recursive(self.coef, self.rs)
-            self.fail('Tried to solve with column result vector!')
-        except ValueError:
-            pass
+        self.try_solve_recursive('Tried to solve with column result vector!')
 
     def try_solve_recursive(self, msg):
         try:
