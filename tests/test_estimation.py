@@ -63,23 +63,23 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_ffactor_upbounds(self):
-        self.ffac = 1.5
+        self.forget = 1.5
         p_15 = lse.recursive(self.coef, self.rs)
-        self.ffac = 1.0
+        self.forget = 1.0
         p_10 = lse.recursive(self.coef, self.rs)
         self._assertSequenceEqual(p_15, p_10)
 
     def test_ffactor_lbounds_out(self):
-        self.ffac = 1e-4
+        self.forget = 1e-4
         p_1 = lse.recursive(self.coef, self.rs)
-        self.ffac = -1.0
+        self.forget = -1.0
         p_2 = lse.recursive(self.coef, self.rs)
         self._assertSequenceEqual(p_1, p_2)
 
     def test_ffactor_lbounds_cout(self):
-        self.ffac = 1e-4
+        self.forget = 1e-4
         p_1 = lse.recursive(self.coef, self.rs)
-        self.ffac = 1e-5
+        self.forget = 1e-5
         p_2 = lse.recursive(self.coef, self.rs)
         self._assertSequenceEqual(p_1, p_2)
 
