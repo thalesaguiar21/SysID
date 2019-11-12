@@ -15,7 +15,7 @@ class TestEstimation(unittest.TestCase):
 
     def setUp(self):
         self.coef = np.array('1 2; 1 2')
-        self.rs = np.array('1; 2')
+        self.rs = np.array('1 2')
         self.confidence = 1000
         self.forget = 1.0
 
@@ -37,7 +37,7 @@ class TestEstimation(unittest.TestCase):
 
     def test_indetermined_sys(self):
         self.coef = np.array('1 2 3; 1 2 3')
-        self.rs = np.array('1; 2')
+        self.rs = np.array('1 2')
         self.try_solve_recursive('Tried to solve an indetermined system!')
 
     def test_rs_small(self):
@@ -47,12 +47,12 @@ class TestEstimation(unittest.TestCase):
 
     def test_rs_larger(self):
         self.coef = np.array('1 2 3; 1 2 3')
-        self.rs = np.array('1; 2; 3')
+        self.rs = np.array('1 2 3')
         self.try_solve_recursive('Tried to solve with too many result values!')
 
     def test_column_rs(self):
         self.coef = np.array('1 2 3; 1 2 3')
-        self.rs = np.array('1; 2')
+        self.rs = np.array('1 2')
         self.try_solve_recursive('Tried to solve with column result vector!')
 
     def try_solve_recursive(self, msg):
@@ -85,7 +85,7 @@ class TestEstimation(unittest.TestCase):
 
     def test_determined_sys(self):
         self.coef = np.array('2 3 2; 1 3 2; 1 2 2')
-        self.rs = np.array('12; 13; 11')
+        self.rs = np.array('12 13 11')
         params = lse.recursive(self.coef, self.rs)
         result = np.dot(self.coef, params)
         expected = [12.002992517583628, 12.998997523491125, 10.996013446352867]
@@ -93,7 +93,7 @@ class TestEstimation(unittest.TestCase):
 
     def test_determined_sys_big(self):
         self.coef = np.array('1 1 1; 5 4 4; 4 5 2')
-        self.rs = np.array('300; 1060; 1140')
+        self.rs = np.array('300 1060 1140')
         params = lse.recursive(self.coef, self.rs)
         result = np.dot(self.coef, params)
         expected = [298.44086271560286, 1060.3673278413662, 1139.9639735518322]
@@ -101,7 +101,7 @@ class TestEstimation(unittest.TestCase):
 
     def test_overdetermined_sys(self):
         self.coef = np.array('2 1 5; 1 3 4; 0 5 -1; -1 2 3')
-        self.rs = np.array('1; -7; -15; -8')
+        self.rs = np.array('1 -7 -15 -8')
         params = lse.recursive(self.coef, self.rs)
         result = np.dot(self.coef, params)
         expected = [0.9994501300038658, -6.99994998163175,
