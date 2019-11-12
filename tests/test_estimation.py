@@ -67,8 +67,6 @@ class TestEstimation(unittest.TestCase):
         p_15 = lse.recursive(self.coef, self.rs)
         self.ffac = 1.0
         p_10 = lse.recursive(self.coef, self.rs)
-        p_15 = [elm[0] for elm in p_15]
-        p_10 = [elm[0] for elm in p_10]
         self._assertSequenceEqual(p_15, p_10)
 
     def test_ffactor_lbounds_out(self):
@@ -76,8 +74,6 @@ class TestEstimation(unittest.TestCase):
         p_1 = lse.recursive(self.coef, self.rs)
         self.ffac = -1.0
         p_2 = lse.recursive(self.coef, self.rs)
-        p_1 = [elm[0] for elm in p_1]
-        p_2 = [elm[0] for elm in p_2]
         self._assertSequenceEqual(p_1, p_2)
 
     def test_ffactor_lbounds_cout(self):
@@ -85,8 +81,6 @@ class TestEstimation(unittest.TestCase):
         p_1 = lse.recursive(self.coef, self.rs)
         self.ffac = 1e-5
         p_2 = lse.recursive(self.coef, self.rs)
-        p_1 = [elm[0] for elm in p_1]
-        p_2 = [elm[0] for elm in p_2]
         self._assertSequenceEqual(p_1, p_2)
 
     def test_determined_sys(self):
@@ -94,7 +88,6 @@ class TestEstimation(unittest.TestCase):
         self.rs = np.array('12; 13; 11')
         params = lse.recursive(self.coef, self.rs)
         result = np.dot(self.coef, params)
-        result = [e[0, 0] for e in result]
         expected = [12.002992517583628, 12.998997523491125, 10.996013446352867]
         assertSequenceAlmostEqual(self, result, expected, 7)
 
@@ -103,7 +96,6 @@ class TestEstimation(unittest.TestCase):
         self.rs = np.array('300; 1060; 1140')
         params = lse.recursive(self.coef, self.rs)
         result = np.dot(self.coef, params)
-        result = [e[0, 0] for e in result]
         expected = [298.44086271560286, 1060.3673278413662, 1139.9639735518322]
         assertSequenceAlmostEqual(self, result, expected, 7)
 
@@ -112,7 +104,6 @@ class TestEstimation(unittest.TestCase):
         self.rs = np.array('1; -7; -15; -8')
         params = lse.recursive(self.coef, self.rs)
         result = np.dot(self.coef, params)
-        result = [e[0, 0] for e in result]
         expected = [0.9994501300038658, -6.99994998163175,
                     -14.999699950935845, -7.999050253967136]
         assertSequenceAlmostEqual(self, result, expected, 7)
