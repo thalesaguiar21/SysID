@@ -87,6 +87,13 @@ class TestEstimation(unittest.TestCase):
         except ValueError:
             pass
 
+    def try_solve_recursive(self, msg):
+        try:
+            params = est.lse.recursive(self.coef, self.rs)
+            self.fail(msg)
+        except ValueError:
+            pass
+
     def test_ffactor_upbounds(self):
         self.ffac = 1.5
         p_15 = est.lse.recursive(self.coef, self.rs)
