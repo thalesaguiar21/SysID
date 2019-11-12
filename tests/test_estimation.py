@@ -14,8 +14,8 @@ def assertSequenceAlmostEqual(testcase, seq1, seq2, tol):
 class TestEstimation(unittest.TestCase):
 
     def setUp(self):
-        self.coef = np.matrix('1 2; 1 2')
-        self.rs = np.matrix('1; 2')
+        self.coef = np.array('1 2; 1 2')
+        self.rs = np.array('1; 2')
         est.lse.initial_confidence = 1000
         est.lse.forget_rate = 1.0
 
@@ -28,7 +28,7 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_empty_rs(self):
-        self.rs = np.matrix(' ')
+        self.rs = np.array(' ')
         try:
             params = est.lse.recursive(self.coef, self.rs)
             self.fail('System estimated with empty rs matrix')
@@ -44,7 +44,7 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_empty_coef(self):
-        self.coef = np.matrix('')
+        self.coef = np.array('')
         try:
             params = est.lse.recursive(self.coef, self.rs)
             self.fail('System estimated with empty coefficient matrix')
@@ -52,8 +52,8 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_indetermined_sys(self):
-        self.coef = np.matrix('1 2 3; 1 2 3')
-        self.rs = np.matrix('1; 2')
+        self.coef = np.array('1 2 3; 1 2 3')
+        self.rs = np.array('1; 2')
         try:
             params = est.lse.recursive(self.coef, self.rs)
             self.fail('Tried to solve an indetermined system!')
@@ -61,8 +61,8 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_rs_small(self):
-        self.coef = np.matrix('1 2 3; 1 2 3')
-        self.rs = np.matrix('1')
+        self.coef = np.array('1 2 3; 1 2 3')
+        self.rs = np.array('1')
         try:
             params = est.lse.recursive(self.coef, self.rs)
             self.fail('Tried to solve with insuficient result values!')
@@ -70,8 +70,8 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_rs_larger(self):
-        self.coef = np.matrix('1 2 3; 1 2 3')
-        self.rs = np.matrix('1; 2; 3')
+        self.coef = np.array('1 2 3; 1 2 3')
+        self.rs = np.array('1; 2; 3')
         try:
             params = est.lse.recursive(self.coef, self.rs)
             self.fail('Tried to solve with too many result values!')
@@ -79,8 +79,8 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_column_rs(self):
-        self.coef = np.matrix('1 2 3; 1 2 3')
-        self.rs = np.matrix('1; 2')
+        self.coef = np.array('1 2 3; 1 2 3')
+        self.rs = np.array('1; 2')
         try:
             params = est.lse.recursive(self.coef, self.rs)
             self.fail('Tried to solve with column result vector!')
@@ -115,8 +115,8 @@ class TestEstimation(unittest.TestCase):
         self.assertSequenceEqual(p_1, p_2)
 
     def test_determined_sys(self):
-        self.coef = np.matrix('2 3 2; 1 3 2; 1 2 2')
-        self.rs = np.matrix('12; 13; 11')
+        self.coef = np.array('2 3 2; 1 3 2; 1 2 2')
+        self.rs = np.array('12; 13; 11')
         params = est.lse.recursive(self.coef, self.rs)
         result = np.dot(self.coef, params)
         result = [e[0, 0] for e in result]
@@ -124,8 +124,8 @@ class TestEstimation(unittest.TestCase):
         assertSequenceAlmostEqual(self, result, expected, 7)
 
     def test_determined_sys_big(self):
-        self.coef = np.matrix('1 1 1; 5 4 4; 4 5 2')
-        self.rs = np.matrix('300; 1060; 1140')
+        self.coef = np.array('1 1 1; 5 4 4; 4 5 2')
+        self.rs = np.array('300; 1060; 1140')
         params = est.lse.recursive(self.coef, self.rs)
         result = np.dot(self.coef, params)
         result = [e[0, 0] for e in result]
@@ -133,8 +133,8 @@ class TestEstimation(unittest.TestCase):
         assertSequenceAlmostEqual(self, result, expected, 7)
 
     def test_overdetermined_sys(self):
-        self.coef = np.matrix('2 1 5; 1 3 4; 0 5 -1; -1 2 3')
-        self.rs = np.matrix('1; -7; -15; -8')
+        self.coef = np.array('2 1 5; 1 3 4; 0 5 -1; -1 2 3')
+        self.rs = np.array('1; -7; -15; -8')
         params = est.lse.recursive(self.coef, self.rs)
         result = np.dot(self.coef, params)
         result = [e[0, 0] for e in result]
