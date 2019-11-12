@@ -1,9 +1,9 @@
 """ This module contains a collection of methods to solve systems
 through Least Square Estimation (LSE).
 """
-from numpy import eye, dot, zeros, ndarray
-from numpy.linalg import inv
-from sample.utils import clip
+import numpy as np
+
+from sysid.utils import clip
 
 initial_confidence = 1000
 forget_rate = 1.0
@@ -111,5 +111,5 @@ def _is_column_vector(rs):
     """
     if rs is not None and not isinstance(rs, ndarray):
         raise ValueError('Invalid type of object ' + str(type(rs)))
-    if rs is not None and rs.shape[1] != 1:
+    if rs is not None and len(rs.shape) != 1:
         raise ValueError('Result matrix must be a column matrix.')
