@@ -117,3 +117,8 @@ class TestEstimation(unittest.TestCase):
                     -14.999699950935845, -7.999050253967136]
         assertSequenceAlmostEqual(self, result, expected, 7)
 
+    def _assertSeqeunceEqual(self, seq1, seq2):
+        for left, right in zip(seq1, seq2):
+            self.assertEqual(left, right)
+
+
