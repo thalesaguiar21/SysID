@@ -6,17 +6,6 @@ import numpy as np
 from sysid.utils import clip
 
 
-class _LSE(object):
-
-    def __init__(self, psi, y):
-        _validate_args(psi, y)
-        self.psi = psi
-        self.y = y
-
-    def solve(self):
-        raise NotImplementedError('Cannot call method from interface!')
-
-
 class Matricial(_LSE):
     """ """
 
