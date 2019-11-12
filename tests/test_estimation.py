@@ -69,7 +69,7 @@ class TestEstimation(unittest.TestCase):
         p_10 = lse.recursive(self.coef, self.rs)
         p_15 = [elm[0] for elm in p_15]
         p_10 = [elm[0] for elm in p_10]
-        self.assertSequenceEqual(p_15, p_10)
+        self._assertSequenceEqual(p_15, p_10)
 
     def test_ffactor_lbounds_out(self):
         self.ffac = 1e-4
@@ -78,7 +78,7 @@ class TestEstimation(unittest.TestCase):
         p_2 = lse.recursive(self.coef, self.rs)
         p_1 = [elm[0] for elm in p_1]
         p_2 = [elm[0] for elm in p_2]
-        self.assertSequenceEqual(p_1, p_2)
+        self._assertSequenceEqual(p_1, p_2)
 
     def test_ffactor_lbounds_cout(self):
         self.ffac = 1e-4
@@ -87,7 +87,7 @@ class TestEstimation(unittest.TestCase):
         p_2 = lse.recursive(self.coef, self.rs)
         p_1 = [elm[0] for elm in p_1]
         p_2 = [elm[0] for elm in p_2]
-        self.assertSequenceEqual(p_1, p_2)
+        self._assertSequenceEqual(p_1, p_2)
 
     def test_determined_sys(self):
         self.coef = np.array('2 3 2; 1 3 2; 1 2 2')
