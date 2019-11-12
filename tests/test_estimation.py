@@ -1,6 +1,9 @@
 import unittest
 import numpy as np
-from sample import estimation as est
+
+from .context import sysid
+from sysid.filtering import lse
+
 
 
 def assertSequenceAlmostEqual(testcase, seq1, seq2, tol):
@@ -17,7 +20,6 @@ class TestEstimation(unittest.TestCase):
         est.lse.forget_rate = 1.0
 
     def test_none_rs(self):
-        self.setUp()
         self.rs = None
         try:
             params = est.lse.recursive(self.coef, self.rs)
@@ -26,7 +28,6 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_empty_rs(self):
-        self.setUp()
         self.rs = np.matrix(' ')
         try:
             params = est.lse.recursive(self.coef, self.rs)
@@ -35,7 +36,6 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_none_coef(self):
-        self.setUp()
         self.coef = None
         try:
             params = est.lse.recursive(self.coef, self.rs)
@@ -44,7 +44,6 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_empty_coef(self):
-        self.setUp()
         self.coef = np.matrix('')
         try:
             params = est.lse.recursive(self.coef, self.rs)
@@ -53,7 +52,6 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_indetermined_sys(self):
-        self.setUp()
         self.coef = np.matrix('1 2 3; 1 2 3')
         self.rs = np.matrix('1; 2')
         try:
@@ -63,7 +61,6 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_rs_small(self):
-        self.setUp()
         self.coef = np.matrix('1 2 3; 1 2 3')
         self.rs = np.matrix('1')
         try:
@@ -73,7 +70,6 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_rs_larger(self):
-        self.setUp()
         self.coef = np.matrix('1 2 3; 1 2 3')
         self.rs = np.matrix('1; 2; 3')
         try:
@@ -83,7 +79,6 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_column_rs(self):
-        self.setUp()
         self.coef = np.matrix('1 2 3; 1 2 3')
         self.rs = np.matrix('1; 2')
         try:
@@ -93,7 +88,6 @@ class TestEstimation(unittest.TestCase):
             pass
 
     def test_ffactor_upbounds(self):
-        self.setUp()
         self.ffac = 1.5
         p_15 = est.lse.recursive(self.coef, self.rs)
         self.ffac = 1.0
@@ -103,7 +97,6 @@ class TestEstimation(unittest.TestCase):
         self.assertSequenceEqual(p_15, p_10)
 
     def test_ffactor_lbounds_out(self):
-        self.setUp()
         self.ffac = 1e-4
         p_1 = est.lse.recursive(self.coef, self.rs)
         self.ffac = -1.0
@@ -113,7 +106,6 @@ class TestEstimation(unittest.TestCase):
         self.assertSequenceEqual(p_1, p_2)
 
     def test_ffactor_lbounds_cout(self):
-        self.setUp()
         self.ffac = 1e-4
         p_1 = est.lse.recursive(self.coef, self.rs)
         self.ffac = 1e-5
@@ -123,7 +115,6 @@ class TestEstimation(unittest.TestCase):
         self.assertSequenceEqual(p_1, p_2)
 
     def test_determined_sys(self):
-        self.setUp()
         self.coef = np.matrix('2 3 2; 1 3 2; 1 2 2')
         self.rs = np.matrix('12; 13; 11')
         params = est.lse.recursive(self.coef, self.rs)
@@ -133,7 +124,6 @@ class TestEstimation(unittest.TestCase):
         assertSequenceAlmostEqual(self, result, expected, 7)
 
     def test_determined_sys_big(self):
-        self.setUp()
         self.coef = np.matrix('1 1 1; 5 4 4; 4 5 2')
         self.rs = np.matrix('300; 1060; 1140')
         params = est.lse.recursive(self.coef, self.rs)
@@ -143,7 +133,6 @@ class TestEstimation(unittest.TestCase):
         assertSequenceAlmostEqual(self, result, expected, 7)
 
     def test_overdetermined_sys(self):
-        self.setUp()
         self.coef = np.matrix('2 1 5; 1 3 4; 0 5 -1; -1 2 3')
         self.rs = np.matrix('1; -7; -15; -8')
         params = est.lse.recursive(self.coef, self.rs)
@@ -152,3 +141,4 @@ class TestEstimation(unittest.TestCase):
         expected = [0.9994501300038658, -6.99994998163175,
                     -14.999699950935845, -7.999050253967136]
         assertSequenceAlmostEqual(self, result, expected, 7)
+

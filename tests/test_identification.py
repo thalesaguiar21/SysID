@@ -13,7 +13,6 @@ class TestIdentification(unittest.TestCase):
         self.delay = 0
 
     def test_shape_single(self):
-        self.setUp()
         self.fname = 'ipca1.dat'
         self.inp = [0, 1]
         with data.open_matrix('examples/' + self.fname) as dat:
@@ -21,7 +20,6 @@ class TestIdentification(unittest.TestCase):
             self.assertEqual(A.shape, (288, 2))
 
     def test_shape_double(self):
-        self.setUp()
         self.fname = 'ipca2.dat'
         self.inp = [0, 1, 2]
         with data.open_matrix('examples/' + self.fname) as dat:
@@ -29,7 +27,6 @@ class TestIdentification(unittest.TestCase):
             self.assertEqual(A.shape, (287, 3))
 
     def test_shape_double_three(self):
-        self.setUp()
         self.fname = 'ipca2.dat'
         self.inp = [0, 1, 2]
         self.order = 2
