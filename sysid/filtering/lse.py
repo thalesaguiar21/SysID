@@ -5,9 +5,6 @@ import numpy as np
 
 from sysid.utils import clip
 
-initial_confidence = 1000
-forget_rate = 1.0
-
 
 class _LSE(object):
 
