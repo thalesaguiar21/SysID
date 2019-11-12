@@ -16,8 +16,8 @@ class TestEstimation(unittest.TestCase):
     def setUp(self):
         self.coef = np.array('1 2; 1 2')
         self.rs = np.array('1; 2')
-        lse.initial_confidence = 1000
-        lse.forget_rate = 1.0
+        self.confidence = 1000
+        self.forget = 1.0
 
     def test_none_rs(self):
         self.rs = None
