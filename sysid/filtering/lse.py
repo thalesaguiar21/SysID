@@ -6,24 +6,20 @@ import numpy as np
 from sysid.utils import clip
 
 
-class Matricial(_LSE):
-    """ """
+class Matricial:
 
-    def __init__(self, psi, y):
-        super().__init__(psi, y)
-
-    def solve(self):
+    def solve(self, coefs, res):
         """ Solve the given system with a matricial least square estimation.
 
         Args:
-            psi (ndarray): The coefficient matrix
-            y (ndarray): The expected values
+            coefs (ndarray): The coefficient matrix
+            res (ndarray): The result matrix
 
         Returns:
             An estimation of parameters theta, that psi * theta ~ y
         """
-        psi_pseudo_inv = inv(dot(self.psi.T, self.psi))
-        theta = dot(dot(psi_pseudo_inv, self.psi.T), self.y)
+        pinv = np.lingalg.inv(coefs.T @ coefs)
+        theta = pinv @ coefs.T @ res
         return theta
 
 
