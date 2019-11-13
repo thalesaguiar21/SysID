@@ -9,7 +9,7 @@ from sysid.utils import clip
 def solve(coefs, res, solver='matricial', **kwargs):
     _validate_args(coefs, res)
     solver = _get_solver(solver)
-    return solver(coefs, res, kwargs)
+    return solver(coefs, res, **kwargs)
 
 
 def _get_solver(name):
@@ -56,7 +56,7 @@ def recursive(coefs, res, forget=1.0, confidence=1000):
         term = covariances @ coefs_k
         denom = coefs_k.T@term + forget
         gain = (term / denom).reshape(n_vars,)
-        theta += gain * (results[k] - coefs_k.T@theta)
+        theta += gain * (res[k] - coefs_k.T@theta)
         part = covariances @ coefs_k @ coefs_k.T @ covariances
         covariances -= part / denom
         covariances *= 1.0 / forget
