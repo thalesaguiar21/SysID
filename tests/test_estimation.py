@@ -43,7 +43,7 @@ class TestEstimation(unittest.TestCase):
     def test_rs_small(self):
         self.coef = np.array('1 2 3; 1 2 3')
         self.rs = np.array('1')
-        self.try_and_solve('Tried to solve with insuficient result values!')
+        self.try_solve_recursive('Tried to solve with insuficient result!')
 
     def test_rs_larger(self):
         self.coef = np.array('1 2 3; 1 2 3')
