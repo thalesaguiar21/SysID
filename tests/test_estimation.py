@@ -57,36 +57,30 @@ class TestEstimation(unittest.TestCase):
 
     def try_solve_recursive(self, msg):
         try:
-            params = lse.recursive(self.coef, self.rs)
+            params = lse.solve(self.coef, self.rs, 'recursive', forget=1.0, confidence=1000)
             self.fail(msg)
         except ValueError:
             pass
 
     def test_ffactor_upbounds(self):
-        self.forget = 1.5
-        p_15 = lse.recursive(self.coef, self.rs)
-        self.forget = 1.0
-        p_10 = lse.recursive(self.coef, self.rs)
-        self._assertSequenceEqual(p_15, p_10)
+        p15 = lse.solve(self.coef, self.rs, 'recursive', forget=1.5)
+        p10 = lse.solve(self.coef, self.rs, 'recursive', forget=1.0)
+        self._assertSequenceEqual(p15, p10)
 
     def test_ffactor_lbounds_out(self):
-        self.forget = 1e-4
-        p_1 = lse.recursive(self.coef, self.rs)
-        self.forget = -1.0
-        p_2 = lse.recursive(self.coef, self.rs)
+        p_1 = lse.recursive(self.coef, self.rs, 'recursive', forget=1e-4)
+        p_2 = lse.recursive(self.coef, self.rsi, 'recursive', forget=-1.0)
         self._assertSequenceEqual(p_1, p_2)
 
     def test_ffactor_lbounds_cout(self):
-        self.forget = 1e-4
-        p_1 = lse.recursive(self.coef, self.rs)
-        self.forget = 1e-5
-        p_2 = lse.recursive(self.coef, self.rs)
+        p_1 = lse.recursive(self.coef, self.rs, 'recursive', forget=1e-4)
+        p_2 = lse.recursive(self.coef, self.rs, 'recursive', forget=1e-5)
         self._assertSequenceEqual(p_1, p_2)
 
     def test_determined_sys(self):
         self.coef = np.array('2 3 2; 1 3 2; 1 2 2')
         self.rs = np.array('12 13 11')
-        params = lse.recursive(self.coef, self.rs)
+        params = lse.solve(self.coef, self.rs, 'recursive')
         result = np.dot(self.coef, params)
         expected = [12.002992517583628, 12.998997523491125, 10.996013446352867]
         assertSequenceAlmostEqual(self, result, expected, 7)
@@ -94,7 +88,7 @@ class TestEstimation(unittest.TestCase):
     def test_determined_sys_big(self):
         self.coef = np.array('1 1 1; 5 4 4; 4 5 2')
         self.rs = np.array('300 1060 1140')
-        params = lse.recursive(self.coef, self.rs)
+        params = lse.solve(self.coef, self.rs, 'recursive')
         result = np.dot(self.coef, params)
         expected = [298.44086271560286, 1060.3673278413662, 1139.9639735518322]
         assertSequenceAlmostEqual(self, result, expected, 7)
@@ -102,7 +96,7 @@ class TestEstimation(unittest.TestCase):
     def test_overdetermined_sys(self):
         self.coef = np.array('2 1 5; 1 3 4; 0 5 -1; -1 2 3')
         self.rs = np.array('1 -7 -15 -8')
-        params = lse.recursive(self.coef, self.rs)
+        params = lse.solve(self.coef, self.rs, 'recursive')
         result = np.dot(self.coef, params)
         expected = [0.9994501300038658, -6.99994998163175,
                     -14.999699950935845, -7.999050253967136]
