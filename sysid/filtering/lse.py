@@ -5,23 +5,7 @@ import numpy as np
 
 from sysid.utils import clip
 
-
-def solve(coefs, res, solver='matricial', **kwargs):
-    _validate_args(coefs, res)
-    solver = _get_solver(solver)
-    return solver(coefs, res, **kwargs)
-
-
-def _get_solver(name):
-    if name == 'matricial':
-        return matricial
-    elif name == 'recursive':
-        return recursive
-    else:
-        raise ValueError(f"Cannot solve by {name}!")
-
-
-def matricial(coefs, res):
+def solve_matricial(coefs, res):
     """ Solve the given system using pseudo inverse model
 
     Args:
@@ -36,7 +20,7 @@ def matricial(coefs, res):
     return theta
 
 
-def recursive(coefs, res, forget=1.0, confidence=1000):
+def solve_recursive(coefs, res, forget=1.0, confidence=1000):
     """ Solve the given system with a recursive least square estimation.
 
     Args:

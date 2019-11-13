@@ -49,31 +49,26 @@ class TestEstimation(unittest.TestCase):
         self.rs = np.array([1, 2, 3])
         self.try_solve_recursive('Tried to solve with too many result values!')
 
-    def test_column_rs(self):
-        self.coef = np.array([[1, 2, 3], [1, 2, 3]])
-        self.rs = np.array([1, 2])
-        self.try_solve_recursive('Tried to solve with column result vector!')
-
     def try_solve_recursive(self, msg):
         try:
-            params = lse.solve(self.coef, self.rs, 'recursive', forget=1.0)
+            params = lse.solve_recursive(self.coef, self.rs, forget=1.0)
             self.fail(msg)
         except ValueError:
             pass
 
     def test_ffactor_upbounds(self):
-        p15 = lse.solve(self.coef, self.rs, 'recursive', forget=1.5)
-        p10 = lse.solve(self.coef, self.rs, 'recursive', forget=1.0)
+        p15 = lse.solve_recursive(self.coef, self.rs, forget=1.5)
+        p10 = lse.solve_recursive(self.coef, self.rs, forget=1.0)
         self._assertSequenceEqual(p15, p10)
 
     def test_ffactor_lbounds_out(self):
-        p_1 = lse.recursive(self.coef, self.rs, 'recursive', forget=1e-4)
-        p_2 = lse.recursive(self.coef, self.rsi, 'recursive', forget=-1.0)
+        p_1 = lse.solve_recursive(self.coef, self.rs, forget=1e-4)
+        p_2 = lse.solve_recursive(self.coef, self.rs, forget=-1.0)
         self._assertSequenceEqual(p_1, p_2)
 
     def test_ffactor_lbounds_cout(self):
-        p_1 = lse.recursive(self.coef, self.rs, 'recursive', forget=1e-4)
-        p_2 = lse.recursive(self.coef, self.rs, 'recursive', forget=1e-5)
+        p_1 = lse.solve_recursive(self.coef, self.rs, forget=1e-4)
+        p_2 = lse.solve_recursive(self.coef, self.rs, forget=1e-5)
         self._assertSequenceEqual(p_1, p_2)
 
     def test_determined_sys(self):
@@ -96,7 +91,7 @@ class TestEstimation(unittest.TestCase):
         self.solve_and_expect(expected)
 
     def solve_and_expect(self, expected):
-        params = lse.solve(self.coef, self.rs, 'recursive')
+        params = lse.solve_recursive(self.coef, self.rs)
         result = self.coef @ params
         assertSequenceAlmostEqual(self, result, expected, 7)
 
