@@ -13,8 +13,8 @@ def assertSequenceAlmostEqual(testcase, seq1, seq2, tol):
 class TestEstimation(unittest.TestCase):
 
     def setUp(self):
-        self.coef = np.array('1 2; 1 2')
-        self.rs = np.array('1 2')
+        self.coef = np.array([[1, 2], [1, 2]])
+        self.rs = np.array([1, 2])
         self.confidence = 1000
         self.forget = 1.0
 
