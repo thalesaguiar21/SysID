@@ -50,7 +50,6 @@ def recursive(self, coefs, res, forget=1.0, confidence=1000):
 
 def _validate_args(coef, rs):
     _is_legal_param(coef, rs)
-    _is_column_vector(rs)
 
 
 def _is_legal_param(coef, rs):
@@ -64,18 +63,3 @@ def _is_legal_param(coef, rs):
     if coef.shape[0] != rs.shape[0]:
         raise ValueError('Expected {}, got {} values in result matrix!'.format(
             coef.shape[1], rs.shape[0]))
-
-
-def _is_column_vector(rs):
-    """ Check whether the given input is a row matrix (1, )
-
-    Args:
-        rs (ndarray) : The object to be checked
-
-    Raises:
-        ValueError: when the object fails as a row matrix
-    """
-    if rs is not None and not isinstance(rs, ndarray):
-        raise ValueError('Invalid type of object ' + str(type(rs)))
-    if rs is not None and len(rs.shape) != 1:
-        raise ValueError('Result matrix must be a column matrix.')
