@@ -81,7 +81,7 @@ class TestEstimation(unittest.TestCase):
         self.coef = np.array('2 3 2; 1 3 2; 1 2 2')
         self.rs = np.array('12 13 11')
         params = lse.solve(self.coef, self.rs, 'recursive')
-        result = np.dot(self.coef, params)
+        result = self.coef @ params
         expected = [12.002992517583628, 12.998997523491125, 10.996013446352867]
         assertSequenceAlmostEqual(self, result, expected, 7)
 
@@ -89,7 +89,7 @@ class TestEstimation(unittest.TestCase):
         self.coef = np.array('1 1 1; 5 4 4; 4 5 2')
         self.rs = np.array('300 1060 1140')
         params = lse.solve(self.coef, self.rs, 'recursive')
-        result = np.dot(self.coef, params)
+        result = self.coef @ params
         expected = [298.44086271560286, 1060.3673278413662, 1139.9639735518322]
         assertSequenceAlmostEqual(self, result, expected, 7)
 
@@ -97,7 +97,7 @@ class TestEstimation(unittest.TestCase):
         self.coef = np.array('2 1 5; 1 3 4; 0 5 -1; -1 2 3')
         self.rs = np.array('1 -7 -15 -8')
         params = lse.solve(self.coef, self.rs, 'recursive')
-        result = np.dot(self.coef, params)
+        result = self.coef @ params
         expected = [0.9994501300038658, -6.99994998163175,
                     -14.999699950935845, -7.999050253967136]
         assertSequenceAlmostEqual(self, result, expected, 7)
