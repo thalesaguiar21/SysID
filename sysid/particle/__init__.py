@@ -1,2 +1,2 @@
-from sample.particle.sampling import Sampler
-from sample.particle.initers import Initer
+from sysid.particle.sampling import Sampler
+from sysid.particle.initers import Initer

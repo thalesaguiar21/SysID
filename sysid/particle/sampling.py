@@ -1,24 +1,24 @@
-from sample.particle import roulette
+from sysid.particle import roulette
 from numpy import array
 from numpy.random import normal
 from enum import Enum
 from math import floor
 from random import randint
-import sample.particle.structures as st
-from sample.particle.initers import initialise, Initer
-from sample.particle.filt import NROBOTS
+import sysid.particle.structures as st
+from sysid.particle.initers import initialise, Initer
+from sysid.particle.filt import NROBOTS
 
 
 class Sampler(Enum):
     COPY = 0
 
 
-def resample(particles, nparticles, gap, sampler):
-    if sampler is Sampler.COPY:
+def resysid(particles, nparticles, gap, sampler):
+    if sysidr is Sampler.COPY:
         return _copy(particles, nparticles)
     else:
-        validsamplers = [name for name, _ in Sampler.__members__.items()]
-        raise ValueError('Invalid sampler, use {}'.format(validsamplers))
+        validsysidrs = [name for name, _ in Sampler.__members__.items()]
+        raise ValueError('Invalid sysidr, use {}'.format(validsamplers))
 
 
 def _copy(particles, nparticles, rndpercent=5, gap=0.02):

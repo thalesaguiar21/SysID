@@ -1,4 +1,4 @@
-from sample.utils import clip, degree, rad
+from sysid.utils import clip, degree, rad
 from math import sqrt, atan, exp, pi
 from numpy import prod
 

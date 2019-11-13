@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
-import sample.particle.sampling as sampl
-import sample.particle.structures as st
-import sample.particle.initers as inits
-import sample.particle.interface as ui
+import sysid.particle.sampling as sampl
+import sysid.particle.structures as st
+import sysid.particle.initers as inits
+import sysid.particle.interface as ui
 from math import sin, cos
 from numpy.random import normal
-from sample.utils import clip
+from sysid.utils import clip
 
 
 MIN_PARTICLES = 1

@@ -1,6 +1,6 @@
-import sample.particle.structures as st
-import sample.particle.sampling as samp
-from sample.utils import rad
+import sysid.particle.structures as st
+import sysid.particle.sampling as samp
+from sysid.utils import rad
 from random import uniform
 from enum import Enum
 
@@ -57,7 +57,7 @@ def _subparticles(nparticles, nrobots, measure):
     particles = []
     for i in range(nrobots):
         randoms = _randomparticles(nparticles, nrobots)
-        randoms = samp.resample(randoms, nparticles, samp.Sampler.COPY)
+        randoms = samp.resysid(randoms, nparticles, samp.Sampler.COPY)
         st.evalparticles(randoms, measure)
         sorted(randoms, reverse=True)
         for static in statics:
