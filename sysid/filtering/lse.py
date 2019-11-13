@@ -6,62 +6,46 @@ import numpy as np
 from sysid.utils import clip
 
 
-class Matricial:
+def matricial(coefs, res):
+    """ Solve the given system using pseudo inverse model
 
-    def solve(self, coefs, res):
-        """ Solve the given system with a matricial least square estimation.
+    Args:
+        coefs (ndarray): The system's coeficients
+        res (ndarray): The system's output
 
-        Args:
-            coefs (ndarray): The coefficient matrix
-            res (ndarray): The result matrix
-
-        Returns:
-            An estimation of parameters theta, that psi * theta ~ y
-        """
-        pinv = np.lingalg.inv(coefs.T @ coefs)
-        theta = pinv @ coefs.T @ res
-        return theta
+    Returns:
+        The parameters that solve the given system
+    """
+    pinv = np.lingalg.inv(coefs.T @ coefs)
+    theta = pinv @ coefs.T @ res
+    return theta
 
 
-class Recursive(_LSE):
-    """ """
-    MIN_CONFIDENCE = 0
-    MAX_CONFIDENCE = 10000
-    MIN_FORGET_RATE = 1e-4
-    MAX_FORGET_RATE = 1.0
+def recursive(self, coefs, res, forget=1.0, confidence=1000):
+    """ Solve the given system with a recursive least square estimation.
 
-    def __init__(self, psi, y, forget_rate=1.0, initial_confidence=1000):
-        super().__init__(psi, y)
-        QTD_VARIABLES = psi.shape[1]
-        initial_confidence = clip(
-            initial_confidence,
-            a_min=Recursive.MIN_CONFIDENCE,
-            a_max=Recursive.MAX_CONFIDENCE)
-        self.forget_rate = clip(
-            forget_rate,
-            a_min=Recursive.MIN_FORGET_RATE,
-            a_max=Recursive.MAX_FORGET_RATE)
-        self.covariance = eye(QTD_VARIABLES) * initial_confidence
-        self.theta = zeros((QTD_VARIABLES, 1))
+    Args:
+        coefs(ndarray): The coefficient matrix
+        res (ndarray): The expected values
+        forget (float): The forget rate, defaults to 1.0
+        confidence (int): The inital confidence value, defaults to 1000
 
-    def solve(self):
-        """ Solve the given system with a recursive least square estimation.
-
-        Args:
-            psi (ndarray): The coefficient matrix
-            y (ndarray): The expected values
-
-        Returns:
-            An estimation of parameters theta, that psi * theta ~ y
-        """
-        for k in range(self.psi.shape[0]):
-            psik = self.psi[k, :].T
-            term = dot(self.covariance, psik)
-            gain = term / ((dot(psik.T, term)) + self.forget_rate)
-            self.theta += dot(gain, self.y[k] - dot(psik.T, self.theta))
-            self.covariance = (1.0 / self.forget_rate) * (
-                self.covariance - dot(gain, dot(psik.T, self.covariance)))
-        return self.theta
+    Returns:
+        An estimation of parameters theta, that psi * theta ~ y
+    """
+    n_eqs, n_vars = coefs.shape
+    covariances = np.eye(n_vars) * confidence
+    theta = np.zeros(n_vars)
+    for k in range(n_eqs):
+        coefs_k = np.array([coefs[k, :]]) * confidence
+        term = covariances @ coefs_k
+        denom = coefs_k.T@term + forget
+        gain = (term / denom).reshape(n_vars,)
+        theta += gain*(results[k] - coefs_k.T@theta)
+        part = covariances @ coefs_k @ coefs_k.T @ covariances
+        covariances -= part / denom
+        covariances *= 1.0 / forget
+    return theta
 
 
 def _validate_args(coef, rs):
