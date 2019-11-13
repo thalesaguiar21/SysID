@@ -57,7 +57,7 @@ class TestEstimation(unittest.TestCase):
 
     def try_solve_recursive(self, msg):
         try:
-            params = lse.solve(self.coef, self.rs, 'recursive', forget=1.0, confidence=1000)
+            params = lse.solve(self.coef, self.rs, 'recursive', forget=1.0)
             self.fail(msg)
         except ValueError:
             pass
