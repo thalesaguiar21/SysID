@@ -8,7 +8,7 @@ from sysid.utils import clip
 
 def solve(coefs, res, solver='matricial', **kwargs):
     solver = _get_solver(solver)
-    return solver(cofes, res, kwargs)
+    return solver(coefs, res, kwargs)
 
 
 def _get_solver(name):
