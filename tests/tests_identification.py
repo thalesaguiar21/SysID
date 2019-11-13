@@ -1,6 +1,7 @@
 import unittest
-from sample import identification as sid
-from sample import data
+
+from .context import sysid
+from sysid import identification as sid
 
 
 class TestIdentification(unittest.TestCase):

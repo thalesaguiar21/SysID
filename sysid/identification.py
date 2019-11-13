@@ -1,8 +1,8 @@
 from numpy import zeros, vstack, dot
 from numpy.random import normal
-from sample.metrics import stdev
-from sample.estimation import lse
-from sample.estimation.utils import calc_residues
+from sysid.metrics import stdev
+from sysid.filtering import lse
+from sysid.utils import calc_residues
 from enum import Enum
 
 """ This module has some identiication functions developed during the class

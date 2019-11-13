@@ -11,3 +11,4 @@ def rad(degree):
 
 def degree(rad):
     return 180 * rad / pi
+
