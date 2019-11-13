@@ -3,7 +3,8 @@ through Least Square Estimation (LSE).
 """
 import numpy as np
 
-from sysid.utils import clip
+import sysid.utils as idutils
+
 
 def solve_matricial(coefs, res):
     """ Solve the given system using pseudo inverse model
@@ -32,6 +33,8 @@ def solve_recursive(coefs, res, forget=1.0, confidence=1000):
     Returns:
         An estimation of parameters theta, that psi * theta ~ y
     """
+    forget, confidence = _fix_args(forget, confidence)
+    _validate_args(coefs, res)
     n_eqs, n_vars = coefs.shape
     covariances = np.eye(n_vars) * confidence
     theta = np.zeros(n_vars)
@@ -45,6 +48,16 @@ def solve_recursive(coefs, res, forget=1.0, confidence=1000):
         covariances -= part / denom
         covariances *= 1.0 / forget
     return theta
+
+
+def _fix_args(forget_rate, confidence):
+    fg_rate = _clip_forget_rate(forget_rate)
+    conf = 1 if confidence <= 0 else confidence
+    return fg_rate, conf
+
+
+def _clip_forget_rate(forget_rate):
+    return idutils.clip(forget_rate, a_min=1e-4, a_max=1.0)
 
 
 def _validate_args(coef, rs):
