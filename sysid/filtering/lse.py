@@ -36,7 +36,7 @@ def matricial(coefs, res):
     return theta
 
 
-def recursive(self, coefs, res, forget=1.0, confidence=1000):
+def recursive(coefs, res, forget=1.0, confidence=1000):
     """ Solve the given system with a recursive least square estimation.
 
     Args:
@@ -48,6 +48,7 @@ def recursive(self, coefs, res, forget=1.0, confidence=1000):
     Returns:
         An estimation of parameters theta, that psi * theta ~ y
     """
+    breakpoint()
     n_eqs, n_vars = coefs.shape
     covariances = np.eye(n_vars) * confidence
     theta = np.zeros(n_vars)
