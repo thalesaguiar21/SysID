@@ -7,6 +7,7 @@ from sysid.utils import clip
 
 
 def solve(coefs, res, solver='matricial', **kwargs):
+    _validate_args(coefs, res)
     solver = _get_solver(solver)
     return solver(coefs, res, kwargs)
 
