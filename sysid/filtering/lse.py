@@ -48,16 +48,15 @@ def recursive(coefs, res, forget=1.0, confidence=1000):
     Returns:
         An estimation of parameters theta, that psi * theta ~ y
     """
-    breakpoint()
     n_eqs, n_vars = coefs.shape
     covariances = np.eye(n_vars) * confidence
     theta = np.zeros(n_vars)
     for k in range(n_eqs):
-        coefs_k = np.array([coefs[k, :]]) * confidence
+        coefs_k = np.array([coefs[k, :]]).T
         term = covariances @ coefs_k
         denom = coefs_k.T@term + forget
         gain = (term / denom).reshape(n_vars,)
-        theta += gain*(results[k] - coefs_k.T@theta)
+        theta += gain * (results[k] - coefs_k.T@theta)
         part = covariances @ coefs_k @ coefs_k.T @ covariances
         covariances -= part / denom
         covariances *= 1.0 / forget
