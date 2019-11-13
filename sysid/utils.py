@@ -12,3 +12,9 @@ def rad(degree):
 def degree(rad):
     return 180 * rad / pi
 
+
+def calc_residues(psi, y, theta):
+    """ Calculate the residues from the predicted theta """
+    ypredicted = dot(psi, theta)
+    return y - ypredicted
+
