@@ -110,3 +110,6 @@ examples/*
 results/*
 clean.cmd
 
+
+# VIm stuff
+*.swp
