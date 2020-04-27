@@ -20,10 +20,3 @@ def solve(margs):
         errors[i] = (1 - ki**2)*errors[i]
     return icogs
 
-
-def diag(mtx):
-    mdiag = np.zeros(mtx.shape)
-    for i in range(mtx.shape[0]):
-        mdiag[i, i] = mtx[i, i]
-    return mdiag
-
