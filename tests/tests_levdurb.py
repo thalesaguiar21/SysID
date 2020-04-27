@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from .context import sysid
-from sysid.filtering import cholesky
+from sysid.filtering import levdurb
 
 
 class TestsCholesky(unittest.TestCase):
@@ -14,12 +14,12 @@ class TestsCholesky(unittest.TestCase):
     def test_cholesky(self):
         margs = np.ones((4, 4))
         indep = np.ones((4, 1))
-        icog = cholesky.decomp(margs, indep)
+        icog = levdurb.solve(margs, indep)
 
     def test_diagonal(self):
         margs = np.ones((4, 4))
         indep = np.ones((4, 1))
-        diag = cholesky.diag(margs)
+        diag = levdurb.diag(margs)
         diag_is_one = all(diag[i, i] == 1 for i in range(4))
         out_is_zero = True
         for i in range(4):

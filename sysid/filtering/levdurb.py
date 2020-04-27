@@ -1,7 +1,7 @@
 import numpy as np 
 
 
-def decomp(margs, indep):
+def solve(margs, indep):
     diagonal = diag(margs)
 
 
