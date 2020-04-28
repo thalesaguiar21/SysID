@@ -10,7 +10,7 @@ def solve(corr, order=None):
 
     for i in range(1, order):
         alpha_coef = 0
-        for j in range(1, i):
+        for j in range(i):
             alpha_coef += alpha[j] * corr[i-j]
 
         ki = (corr[i]-alpha_coef) / errors[i-1]
